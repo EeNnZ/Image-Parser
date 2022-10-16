@@ -2,7 +2,7 @@
 using ParserCore.Interfaces;
 using System.Runtime.Versioning;
 
-namespace ParserCore.WallpapersWide
+namespace ParserCore.Parsers.WallpapersWide
 {
     [SupportedOSPlatform("windows")]
     public class WallpapersWideParser : ImageParser

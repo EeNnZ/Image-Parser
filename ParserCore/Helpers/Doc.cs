@@ -1,7 +1,7 @@
 ﻿using AngleSharp.Html.Dom;
 using AngleSharp.Html.Parser;
 
-namespace ParserCore.Loaders
+namespace ParserCore.Helpers
 {
     public static class Doc
     {
@@ -9,7 +9,7 @@ namespace ParserCore.Loaders
                                                                                    IProgress<ProgressInfo> progress,
                                                                                    CancellationToken token)
         {
-            var htmlPages = await HtmlPageLoader.LoadPagesAsync(urls, progress, token);
+            var htmlPages = await HtmlDownloader.DownloadAsync(urls, progress, token);
 
             if (htmlPages == null) throw new NullReferenceException(nameof(htmlPages));
             return await GetDocumentsAsync(htmlPages, progress, token);
@@ -37,7 +37,7 @@ namespace ParserCore.Loaders
                                         {
                                             var document = parser.ParseDocument(page);
                                             documents.Add(document);
-                                            pInfo.Percentage = (documents.Count * 100) / pagesCount;
+                                            pInfo.Percentage = documents.Count * 100 / pagesCount;
                                             progress.Report(pInfo);
                                         });
                         }

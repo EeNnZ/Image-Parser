@@ -1,11 +1,11 @@
 ﻿using AngleSharp.Html.Dom;
 using ParserCore.Interfaces;
 
-namespace ParserCore.Wallhaven
+namespace ParserCore.Parsers.Wallhaven
 {
     public class WallhavenParser : ImageParser
     {
-        public WallhavenParser(IParserOptions options) 
+        public WallhavenParser(IParserOptions options)
             : base(options) { }
         protected override IEnumerable<string> GetImageListPageLinks(IHtmlDocument doc)
         {
@@ -28,7 +28,7 @@ namespace ParserCore.Wallhaven
             //data-wallpaper-width="1920"
             //
             var links = doc.QuerySelectorAll("img")
-                .Where(x => x != null 
+                .Where(x => x != null
                       && x.Id == "wallpaper"
                       && x.HasAttribute("src"))
                 .Select(x => x.GetAttribute("src") ?? "");

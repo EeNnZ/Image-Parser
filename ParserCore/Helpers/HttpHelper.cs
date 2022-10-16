@@ -1,6 +1,6 @@
 ﻿using System.Net.Http.Headers;
 
-namespace ParserCore.Loaders
+namespace ParserCore.Helpers
 {
     public static class HttpHelper
     {

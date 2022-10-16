@@ -1,10 +1,10 @@
 ﻿using System.Drawing;
 using System.Runtime.Versioning;
 
-namespace ParserCore.Loaders
+namespace ParserCore.Helpers
 {
     [SupportedOSPlatform("windows")]
-    public static class ImageLoader
+    public static class ImageDownloader
     {
         private const int REQ_TIMEOUT = 2000;
         public static string WorkingDirectory
@@ -34,7 +34,7 @@ namespace ParserCore.Loaders
             //TODO: Save decoded to file
             return true;
         }
-        public static async Task DownloadImagesAsync(IEnumerable<string> sources, IProgress<ProgressInfo> progress, CancellationToken token)
+        public static async Task DownloadAsync(IEnumerable<string> sources, IProgress<ProgressInfo> progress, CancellationToken token)
         {
             var pInfo = new ProgressInfo() { TextStatus = "Downloading images" };
             int linksCount = sources.Count();
@@ -66,7 +66,7 @@ namespace ParserCore.Loaders
                                         pls.Break();
                                     }
 
-                                    pInfo.Percentage = (downloadedConut * 100) / linksCount;
+                                    pInfo.Percentage = downloadedConut * 100 / linksCount;
                                     //TODO: Fix pInfo to handle base64 cases
                                     pInfo.ItemsProcessed.Add(source.Split("/").Last());
                                     progress.Report(pInfo);
@@ -101,7 +101,7 @@ namespace ParserCore.Loaders
                     {
                         DownloadImageAsync(source, token).RunSynchronously(); downloadedCount++;
                     }
-                        catch (AggregateException ex) when (ex.InnerException is HttpRequestException)
+                    catch (AggregateException ex) when (ex.InnerException is HttpRequestException)
                     {
                         Thread.Sleep(REQ_TIMEOUT); continue;
                     }
@@ -109,7 +109,7 @@ namespace ParserCore.Loaders
 
                 pInfo.ItemsProcessed.Add(source);
                 pInfo.TextStatus = "Downloading images..";
-                pInfo.Percentage = (downloadedCount * 100) / urlsCount;
+                pInfo.Percentage = downloadedCount * 100 / urlsCount;
                 progress.Report(pInfo);
             }
         }

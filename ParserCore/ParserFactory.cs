@@ -1,7 +1,8 @@
-﻿using ParserCore.Wallhaven;
-using ParserCore.WallpapersWide;
+﻿using ParserCore.Interfaces;
+using ParserCore.Parsers;
+using ParserCore.Parsers.Wallhaven;
+using ParserCore.Parsers.WallpapersWide;
 using System.Runtime.Versioning;
-using Wallhaven;
 
 namespace ParserCore
 {

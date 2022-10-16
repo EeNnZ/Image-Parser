@@ -1,6 +1,6 @@
 ﻿using ParserCore.Interfaces;
 
-namespace ParserCore.WallpapersWide
+namespace ParserCore.Parsers.WallpapersWide
 {
     public class WallpapersWideOptions : IParserOptions
     {

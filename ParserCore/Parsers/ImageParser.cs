@@ -1,9 +1,8 @@
 ﻿using AngleSharp.Html.Dom;
+using ParserCore.Helpers;
 using ParserCore.Interfaces;
-using ParserCore.Loaders;
-using System.Reflection.Metadata;
 
-namespace ParserCore
+namespace ParserCore.Parsers
 {
     public abstract class ImageParser
     {
@@ -22,7 +21,7 @@ namespace ParserCore
 
             }
         }
-        public ImageParser(IParserOptions options) 
+        public ImageParser(IParserOptions options)
         {
             Options = options;
         }

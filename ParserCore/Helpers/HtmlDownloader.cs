@@ -1,14 +1,13 @@
-﻿using AngleSharp.Html.Dom;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 
-namespace ParserCore.Loaders
+namespace ParserCore.Helpers
 {
-    public static class HtmlPageLoader //TODO: Make not static and use interface for all loaders?
+    public static class HtmlDownloader
     {
         private const int REQ_TIMEOUT = 2000;
         private const int RETRIES_COUNT = 5;
 
-        public static async Task<IEnumerable<string>> LoadPagesAsync(IEnumerable<string> urls,
+        public static async Task<IEnumerable<string>> DownloadAsync(IEnumerable<string> urls,
                                                                      IProgress<ProgressInfo> progress,
                                                                      CancellationToken token)
         {
@@ -37,7 +36,7 @@ namespace ParserCore.Loaders
                                     if (page is null) return;
                                     pages.Add(page);
                                     pInfo.ItemsProcessed.Add(link);
-                                    pInfo.Percentage = (pages.Count * 100) / urlsCount;
+                                    pInfo.Percentage = pages.Count * 100 / urlsCount;
                                     progress.Report(pInfo);
                                 }
                                 catch (AggregateException) //when (ex.InnerException is HttpRequestException httpEx)
@@ -79,7 +78,7 @@ namespace ParserCore.Loaders
                             pages.Add(page);
                             pInfo.ItemsProcessed.Add(url);
                             pInfo.TextStatus = "Downloading pages...";
-                            pInfo.Percentage = (pages.Count * 100) / urlsCount;
+                            pInfo.Percentage = pages.Count * 100 / urlsCount;
                             progress.Report(pInfo);
                         }
                         catch (AggregateException aex) when (aex.InnerException is HttpRequestException)

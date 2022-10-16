@@ -1,9 +1,8 @@
 ﻿using AngleSharp.Html.Dom;
-using ParserCore;
+using ParserCore.Helpers;
 using ParserCore.Interfaces;
-using ParserCore.Loaders;
 
-namespace WallpaperfFlare
+namespace ParserCore.Parsers.WallpaperfFlare
 {
     public class WallpaperFlareParser : ImageParser
     {

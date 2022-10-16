@@ -1,12 +1,12 @@
 using ParserCore;
-using ParserCore.Loaders;
+using ParserCore.Helpers;
 
 namespace ParserGui
 {
     public partial class MainForm : Form
     {
         //TODO: Test and fix cancellation
-        private readonly CancellationTokenSource _cts = new();
+        private CancellationTokenSource _cts = new();
         private readonly string[] _websites = new[] { "wallhaven.cc", "wallpaperswide.com" };
         private Progress<ProgressInfo> _mainProgress, _wallhavenProgress, _wallpapersWideProgress;
         public MainForm()
@@ -33,8 +33,15 @@ namespace ParserGui
             }
             catch (OperationCanceledException ex)
             {
-                MessageBox.Show(ex.Message, Text);
+                progressLabel.Text = ex.Message;
+                textBoxStatus.Text = ex.Message;
+                MessageBox.Show($"{ex.Message}", Text);
                 return;
+            }
+            finally
+            {
+                foreach (var task in tasks) task.Dispose();
+                _cts = new();
             }
 
 #else
@@ -75,7 +82,7 @@ namespace ParserGui
         private async Task DownloadImagesAsync(string[] sources)
         {
             if (sources == null) throw new NullReferenceException(nameof(sources));
-            await ImageLoader.DownloadImagesAsync(sources, _mainProgress, _cts.Token);
+            await ImageDownloader.DownloadAsync(sources, _mainProgress, _cts.Token);
         }
         private void InitializeProgresses()
         {
