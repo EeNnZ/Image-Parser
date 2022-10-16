@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 
 namespace ParserCore.Loaders
 {
-    public static class HtmlPageLoader
+    public static class HtmlPageLoader //TODO: Make not static and use interface for all loaders?
     {
         private const int REQ_TIMEOUT = 2000;
         private const int RETRIES_COUNT = 5;
@@ -15,16 +15,15 @@ namespace ParserCore.Loaders
             var pages = new List<string>();
             var links = new ConcurrentBag<string>(urls);
 
-            var pInfo = new ProgressInfo() { TextStatus = "Downloading pages" };
+            var pInfo = new ProgressInfo() { TextStatus = "Downloading pages..." };
             progress.Report(pInfo);
             int urlsCount = urls.Count();
             ParallelLoopResult plr = default;
-
             await Task.Run(() =>
-            {
-                try
                 {
-                    plr = Parallel.ForEach(links,
+                    try
+                    {
+                        plr = Parallel.ForEach(links,
                             new ParallelOptions()
                             {
                                 CancellationToken = token,
@@ -43,59 +42,59 @@ namespace ParserCore.Loaders
                                 }
                                 catch (AggregateException) //when (ex.InnerException is HttpRequestException httpEx)
                                 {
+                                    pInfo.TextStatus = "Parallel download interrupted";
+                                    progress.Report(pInfo);
                                     pls.Break();
                                 }
                             });
-                }
-                catch (OperationCanceledException) { }
-            }, token);
-
+                    }
+                    catch { }
+                }, token);
             if (!plr.IsCompleted && !token.IsCancellationRequested)
             {
-                try { await Task.Run(() => LoadPagesSynchronously(pages, urls, progress, pInfo, token), token); }
-                catch (OperationCanceledException) { }
+                await Task.Run(() => LoadPagesSequentially(pages, urls, progress, pInfo, token), token);
             }
             return pages;
         }
 
-        private static void LoadPagesSynchronously(List<string> pages, IEnumerable<string> urls, IProgress<ProgressInfo> progress, ProgressInfo pInfo, CancellationToken token)
+        private static void LoadPagesSequentially(List<string> pages, IEnumerable<string> urls, IProgress<ProgressInfo> progress, ProgressInfo pInfo, CancellationToken token)
         {
             pages.Clear();
             pInfo.ItemsProcessed.Clear();
-            pInfo.TextStatus = "Download will be restarted synchronously";
+            pInfo.TextStatus = "Download restarted in sequentially mode";
             progress.Report(pInfo);
             int urlsCount = urls.Count();
 
-            foreach (string url in urls)
+            try
             {
-                token.ThrowIfCancellationRequested();
-                for (int i = 0; i < RETRIES_COUNT; i++)
+                foreach (string url in urls)
                 {
-                    try
+                    token.ThrowIfCancellationRequested();
+                    for (int i = 0; i < RETRIES_COUNT; i++)
                     {
-                        string? page = HttpHelper.GetStringAsync(url, token).Result;
-                        if (page == null) return;
-                        pages.Add(page);
-                        pInfo.ItemsProcessed.Add(url);
-                        pInfo.TextStatus = "Downloading pages...";
-                        pInfo.Percentage = (pages.Count * 100) / urlsCount;
-                        progress.Report(pInfo);
-                    }
-                    catch (AggregateException aex)
-                    {
-                        //TODO: Report progress?
-                        if (aex.InnerException is HttpRequestException)
+                        try
                         {
-                            Thread.Sleep(REQ_TIMEOUT);
-                            continue;
+                            string? page = HttpHelper.GetStringAsync(url, token).Result;
+                            if (page == null) return;
+                            pages.Add(page);
+                            pInfo.ItemsProcessed.Add(url);
+                            pInfo.TextStatus = "Downloading pages...";
+                            pInfo.Percentage = (pages.Count * 100) / urlsCount;
+                            progress.Report(pInfo);
                         }
-                        else if (aex.InnerException is OperationCanceledException)
+                        catch (AggregateException aex) when (aex.InnerException is HttpRequestException)
                         {
-                            return;
+                            pInfo.TextStatus = "Too many requests, waiting for 2 seconds...";
+                            progress.Report(pInfo);
+                            Thread.Sleep(REQ_TIMEOUT);
+                            pInfo.TextStatus = "Rertying";
+                            progress.Report(pInfo);
+                            continue;
                         }
                     }
                 }
             }
+            catch { }
         }
     }
 }

@@ -9,14 +9,8 @@ namespace ParserCore.Loaders
                                                                                    IProgress<ProgressInfo> progress,
                                                                                    CancellationToken token)
         {
-            IEnumerable<string>? htmlPages = null;
-            try
-            {
-                htmlPages = await HtmlPageLoader.LoadPagesAsync(urls, progress, token);
-            }
-            catch (OperationCanceledException)
-            { 
-            }
+            var htmlPages = await HtmlPageLoader.LoadPagesAsync(urls, progress, token);
+
             if (htmlPages == null) throw new NullReferenceException(nameof(htmlPages));
             return await GetDocumentsAsync(htmlPages, progress, token);
         }
@@ -31,28 +25,25 @@ namespace ParserCore.Loaders
             int pagesCount = htmlPages.Count();
             progress.Report(pInfo);
 
-            try
-            {
-                await Task.Run(() =>
+            await Task.Run(() =>
+                    {
+                        try
                         {
-                            try
+                            Parallel.ForEach(htmlPages, new ParallelOptions
                             {
-                                Parallel.ForEach(htmlPages, new ParallelOptions
-                                {
-                                    CancellationToken = token,
-                                    MaxDegreeOfParallelism = Environment.ProcessorCount
-                                }, page =>
+                                CancellationToken = token,
+                                MaxDegreeOfParallelism = Environment.ProcessorCount
+                            }, page =>
                                         {
                                             var document = parser.ParseDocument(page);
                                             documents.Add(document);
                                             pInfo.Percentage = (documents.Count * 100) / pagesCount;
                                             progress.Report(pInfo);
                                         });
-                            }
-                            catch (OperationCanceledException) { return; }
-                        }, token);
-            }
-            catch (OperationCanceledException) { }
+                        }
+                        catch { }
+                    }, token);
+
             return documents;
         }
     }

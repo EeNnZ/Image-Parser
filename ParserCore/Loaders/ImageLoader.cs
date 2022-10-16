@@ -17,20 +17,22 @@ namespace ParserCore.Loaders
                 return dir.FullName;
             }
         }
-        private static async Task DownloadImageAsync(string imageUrl, CancellationToken token)
+        private static async Task<bool> DownloadImageAsync(string imageUrl, CancellationToken token)
         {
-            //TODO: Cancellation
             string imgName = imageUrl.Split("/").Last();
             string imgPath = Path.Combine(WorkingDirectory, imgName);
 
             using var input = new FileStream(imgPath, FileMode.Create);
             await HttpHelper.GetFileAsync(imageUrl, input, token);
+            return true;
         }
-        private static Bitmap GetImageFromBase64String(string source)
+        private static bool GetImageFromBase64String(string source)
         {
             byte[] bytes = Convert.FromBase64String(source);
             using var stream = new MemoryStream(bytes);
-            return new Bitmap(stream);
+            var decoded = new Bitmap(stream);
+            //TODO: Save decoded to file
+            return true;
         }
         public static async Task DownloadImagesAsync(IEnumerable<string> sources, IProgress<ProgressInfo> progress, CancellationToken token)
         {
@@ -41,9 +43,9 @@ namespace ParserCore.Loaders
 
             bool isBase64Encoded = sources.FirstOrDefault()?.Length > 1000;
             ParallelLoopResult plr = default;
-            try
-            {
-                await Task.Run(() =>
+            await Task.Run(() =>
+                {
+                    try
                     {
                         plr = Parallel.ForEach(sources, new ParallelOptions()
                         {
@@ -53,19 +55,15 @@ namespace ParserCore.Loaders
                                 {
                                     try
                                     {
-                                        if (!isBase64Encoded) 
+                                        if (!isBase64Encoded)
                                         {
-                                            try { DownloadImageAsync(source, token).RunSynchronously(); downloadedConut++; }
-                                            catch (OperationCanceledException) { throw; }
+                                            _ = DownloadImageAsync(source, token).Result; downloadedConut++;
                                         }
-                                        else { GetImageFromBase64String(source); }
+                                        else { _ = GetImageFromBase64String(source); }
                                     }
-                                    catch (AggregateException aex)
+                                    catch (AggregateException)
                                     {
-                                        if (aex.InnerException is HttpRequestException httpEx)
-                                        {
-                                            pls.Break();
-                                        }
+                                        pls.Break();
                                     }
 
                                     pInfo.Percentage = (downloadedConut * 100) / linksCount;
@@ -73,14 +71,13 @@ namespace ParserCore.Loaders
                                     pInfo.ItemsProcessed.Add(source.Split("/").Last());
                                     progress.Report(pInfo);
                                 });
-                    }, token);
-                if (!plr.IsCompleted) 
-                {
-                    try { await Task.Run(() => DownloadImages(sources, pInfo, progress, token), token); }
-                    catch (OperationCanceledException) { throw; }
-                }
+                    }
+                    catch { }
+                }, token);
+            if (!plr.IsCompleted && !token.IsCancellationRequested)
+            {
+                await Task.Run(() => DownloadImages(sources, pInfo, progress, token), token);
             }
-            catch (TaskCanceledException) { throw; }
             pInfo.TextStatus = "Done";
             pInfo.Percentage = 100;
             progress.Report(pInfo);
@@ -94,31 +91,28 @@ namespace ParserCore.Loaders
             pInfo.TextStatus = "Download will be restarted synchronously";
             progress.Report(pInfo);
             int urlsCount = sources.Count();
-            try
+
+            foreach (string source in sources)
             {
-                foreach (string source in sources)
+                token.ThrowIfCancellationRequested();
+                for (int i = 0; i < 5; i++)
                 {
-                    token.ThrowIfCancellationRequested();
-                    for (int i = 0; i < 5; i++)
+                    try
                     {
-                        try { DownloadImageAsync(source, token).RunSynchronously(); downloadedCount++; }
-                        catch (OperationCanceledException) { throw; }
-                        catch (AggregateException ex)
-                        {
-                            if (ex.InnerException is HttpRequestException httpEx) { Thread.Sleep(REQ_TIMEOUT); continue; }
-                            else throw;
-                        }
+                        DownloadImageAsync(source, token).RunSynchronously(); downloadedCount++;
                     }
-
-                    pInfo.ItemsProcessed.Add(source);
-                    pInfo.TextStatus = "Downloading images..";
-                    pInfo.Percentage = (downloadedCount * 100) / urlsCount;
-                    progress.Report(pInfo);
+                        catch (AggregateException ex) when (ex.InnerException is HttpRequestException)
+                    {
+                        Thread.Sleep(REQ_TIMEOUT); continue;
+                    }
                 }
-            }
-            catch (OperationCanceledException) { throw; }
-        }
 
+                pInfo.ItemsProcessed.Add(source);
+                pInfo.TextStatus = "Downloading images..";
+                pInfo.Percentage = (downloadedCount * 100) / urlsCount;
+                progress.Report(pInfo);
+            }
+        }
         private static bool ClearWorkingDirectory(string workingDirectory)
         {
             Directory.EnumerateFiles(workingDirectory).ToList().ForEach(file => File.Delete(file));

@@ -31,10 +31,9 @@ namespace ParserGui
             {
                 await RunTasksAsync(tasks);
             }
-            catch (OperationCanceledException ex) { throw; }
-            catch (Exception ex)
+            catch (OperationCanceledException ex)
             {
-                MessageBox.Show(Text, ex.Message);
+                MessageBox.Show(ex.Message, Text);
                 return;
             }
 
@@ -88,12 +87,21 @@ namespace ParserGui
         {
             progressBar1.Value = e.Percentage;
             label4.Text = $"{e.Percentage} %";
+            textBoxStatus.Text += $"\r\nWallhaven: {e.TextStatus}";
         }
         private void WallpapersWideProgressChanged(ProgressInfo e)
         {
             progressBar2.Value = e.Percentage;
             label5.Text = $"{e.Percentage} %";
+            textBoxStatus.Text += $"\r\nWide: {e.TextStatus}";
         }
+
+        private void TextBoxStatusTextChanged(object sender, EventArgs e)
+        {
+            textBoxStatus.SelectionStart = textBoxStatus.TextLength;
+            textBoxStatus.ScrollToCaret();
+        }
+
         private void MainProgressChanged(ProgressInfo e)
         {
             progressBar.Value = e.Percentage;

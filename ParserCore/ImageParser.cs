@@ -30,18 +30,14 @@ namespace ParserCore
         {
             IEnumerable<string> urls = GetUrls();
 
-            try
-            {
-                var documentsWithImageList = await Doc.GetHtmlDocumentsAsync(urls, progress, token);
-                var linksToPagesWithSingleImage = documentsWithImageList.SelectMany(doc => GetImageListPageLinks(doc));
+            var documentsWithImageList = await Doc.GetHtmlDocumentsAsync(urls, progress, token);
+            var linksToPagesWithSingleImage = documentsWithImageList.SelectMany(doc => GetImageListPageLinks(doc));
 
-                var documentsWithSingleImage = await Doc.GetHtmlDocumentsAsync(linksToPagesWithSingleImage, progress, token);
-                var sources = documentsWithSingleImage.SelectMany(doc => GetImageSources(doc));
+            var documentsWithSingleImage = await Doc.GetHtmlDocumentsAsync(linksToPagesWithSingleImage, progress, token);
+            var sources = documentsWithSingleImage.SelectMany(doc => GetImageSources(doc));
 
-                return sources;
-            }
-            catch (OperationCanceledException) { throw; }
-            catch (ArgumentNullException) { throw; }
+            return sources;
+
         }
 
         protected IEnumerable<string> GetUrls()

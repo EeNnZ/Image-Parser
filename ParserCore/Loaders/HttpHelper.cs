@@ -21,40 +21,28 @@ namespace ParserCore.Loaders
         }
         public static async Task<Stream?> GetStreamAsync(string url, CancellationToken token)
         {
-            HttpResponseMessage? response = null;
-            try { response = await Client.GetAsync(url, token); }
-            catch (OperationCanceledException) { }
-            if (response == null) return null;
+            var response = await Client.GetAsync(url, token);
             response.EnsureSuccessStatusCode();
             var stream = await response.Content.ReadAsStreamAsync(token);
             return stream;
         }
         public static async Task<string?> GetStringAsync(string url, CancellationToken token)
         {
-            HttpResponseMessage? response = null;
-            try { response = await Client.GetAsync(url, token); }
-            catch(OperationCanceledException) { }
-            if (response == null) return null;
+            var response = await Client.GetAsync(url, token);
             response.EnsureSuccessStatusCode();
             string result = await response.Content.ReadAsStringAsync(token);
             return result;
         }
         public static async Task<HttpContent?> GetContentAsync(string url, CancellationToken token)
         {
-            HttpResponseMessage? response = null;
-            try { response = await Client.GetAsync(url, token); }
-            catch (TaskCanceledException) { }
-            if (response == null) return null;
+            var response = await Client.GetAsync(url, token);
             response.EnsureSuccessStatusCode();
             var content = response.Content;
             return content;
         }
         public static async Task GetFileAsync(string url, Stream destination, CancellationToken token, IProgress<double>? progress = null)
         {
-            HttpResponseMessage? response = null;
-            try { response = await Client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, token); }
-            catch (TaskCanceledException) { }
-            if (response == null) return;
+            var response = await Client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, token);
             response.EnsureSuccessStatusCode();
             var total = response.Content.Headers.ContentLength ?? -1L;
             using var source = await response.Content.ReadAsStreamAsync(token);
