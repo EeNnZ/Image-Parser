@@ -5,9 +5,7 @@ namespace ParserCore.Helpers
 {
     public static class Doc
     {
-        public static async Task<IEnumerable<IHtmlDocument>> GetHtmlDocumentsAsync(IEnumerable<string> urls,
-                                                                                   IProgress<ProgressInfo> progress,
-                                                                                   CancellationToken token)
+        public static async Task<IEnumerable<IHtmlDocument>> GetHtmlDocumentsAsync(IEnumerable<string> urls, IProgress<ProgressInfo> progress, CancellationToken token)
         {
             var htmlPages = await HtmlDownloader.DownloadAsync(urls, progress, token);
 
@@ -38,6 +36,11 @@ namespace ParserCore.Helpers
                                             var document = parser.ParseDocument(page);
                                             documents.Add(document);
                                             pInfo.Percentage = documents.Count * 100 / pagesCount;
+                                            if (pInfo.Percentage >= 100)
+                                            {
+                                                pInfo.Percentage = 100;
+                                                pInfo.TextStatus = "Done";
+                                            }
                                             progress.Report(pInfo);
                                         });
                         }

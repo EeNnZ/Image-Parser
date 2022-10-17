@@ -1,6 +1,5 @@
 ﻿namespace ParserCore.Interfaces
 {
-    //TODO: Use abstract options instead?
     public interface IParserOptions
     {
         string BaseUrl { get; }

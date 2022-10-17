@@ -28,10 +28,10 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.statusStrip1 = new System.Windows.Forms.StatusStrip();
-            this.progressBar = new System.Windows.Forms.ToolStripProgressBar();
-            this.progressLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.websitesListBox = new MaterialSkin.Controls.MaterialCheckedListBox();
+            this.progressBar = new MaterialSkin.Controls.MaterialProgressBar();
+            this.progressLabel = new MaterialSkin.Controls.MaterialLabel();
             this.label5 = new MaterialSkin.Controls.MaterialLabel();
             this.progressBar2 = new MaterialSkin.Controls.MaterialProgressBar();
             this.label4 = new MaterialSkin.Controls.MaterialLabel();
@@ -44,39 +44,16 @@
             this.label1 = new MaterialSkin.Controls.MaterialLabel();
             this.label2 = new MaterialSkin.Controls.MaterialLabel();
             this.label3 = new MaterialSkin.Controls.MaterialLabel();
-            this.statusStrip1.SuspendLayout();
+            this.themeSwitcher = new MaterialSkin.Controls.MaterialSwitch();
             this.websitesListBox.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // statusStrip1
-            // 
-            this.statusStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
-            this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.progressBar,
-            this.progressLabel});
-            this.statusStrip1.Location = new System.Drawing.Point(3, 611);
-            this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Padding = new System.Windows.Forms.Padding(1, 0, 16, 0);
-            this.statusStrip1.Size = new System.Drawing.Size(1108, 29);
-            this.statusStrip1.TabIndex = 10;
-            this.statusStrip1.Text = "statusStrip1";
-            // 
-            // progressBar
-            // 
-            this.progressBar.BackColor = System.Drawing.SystemColors.ControlDark;
-            this.progressBar.Name = "progressBar";
-            this.progressBar.Size = new System.Drawing.Size(115, 21);
-            // 
-            // progressLabel
-            // 
-            this.progressLabel.Name = "progressLabel";
-            this.progressLabel.Size = new System.Drawing.Size(65, 23);
-            this.progressLabel.Text = "Progress";
             // 
             // websitesListBox
             // 
             this.websitesListBox.AutoScroll = true;
             this.websitesListBox.BackColor = System.Drawing.SystemColors.Control;
+            this.websitesListBox.Controls.Add(this.progressBar);
+            this.websitesListBox.Controls.Add(this.progressLabel);
             this.websitesListBox.Controls.Add(this.label5);
             this.websitesListBox.Controls.Add(this.progressBar2);
             this.websitesListBox.Controls.Add(this.label4);
@@ -89,6 +66,26 @@
             this.websitesListBox.Striped = false;
             this.websitesListBox.StripeDarkColor = System.Drawing.Color.Empty;
             this.websitesListBox.TabIndex = 29;
+            // 
+            // progressBar
+            // 
+            this.progressBar.Depth = 0;
+            this.progressBar.Location = new System.Drawing.Point(3, 223);
+            this.progressBar.MouseState = MaterialSkin.MouseState.HOVER;
+            this.progressBar.Name = "progressBar";
+            this.progressBar.Size = new System.Drawing.Size(455, 5);
+            this.progressBar.TabIndex = 41;
+            // 
+            // progressLabel
+            // 
+            this.progressLabel.AutoSize = true;
+            this.progressLabel.Depth = 0;
+            this.progressLabel.Font = new System.Drawing.Font("Roboto", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
+            this.progressLabel.Location = new System.Drawing.Point(3, 182);
+            this.progressLabel.MouseState = MaterialSkin.MouseState.HOVER;
+            this.progressLabel.Name = "progressLabel";
+            this.progressLabel.Size = new System.Drawing.Size(1, 0);
+            this.progressLabel.TabIndex = 40;
             // 
             // label5
             // 
@@ -283,11 +280,28 @@
             this.label3.TabIndex = 38;
             this.label3.Text = "Start/End Point";
             // 
+            // themeSwitcher
+            // 
+            this.themeSwitcher.AutoSize = true;
+            this.themeSwitcher.Depth = 0;
+            this.themeSwitcher.Location = new System.Drawing.Point(892, 532);
+            this.themeSwitcher.Margin = new System.Windows.Forms.Padding(0);
+            this.themeSwitcher.MouseLocation = new System.Drawing.Point(-1, -1);
+            this.themeSwitcher.MouseState = MaterialSkin.MouseState.HOVER;
+            this.themeSwitcher.Name = "themeSwitcher";
+            this.themeSwitcher.Ripple = true;
+            this.themeSwitcher.Size = new System.Drawing.Size(144, 37);
+            this.themeSwitcher.TabIndex = 39;
+            this.themeSwitcher.Text = "Dark Theme";
+            this.themeSwitcher.UseVisualStyleBackColor = true;
+            this.themeSwitcher.CheckedChanged += new System.EventHandler(this.ThemeSwitcherCheckedChanged);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1114, 643);
+            this.ClientSize = new System.Drawing.Size(1100, 600);
+            this.Controls.Add(this.themeSwitcher);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
@@ -297,13 +311,13 @@
             this.Controls.Add(this.goButton);
             this.Controls.Add(this.statusTextBox);
             this.Controls.Add(this.websitesListBox);
-            this.Controls.Add(this.statusStrip1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(4);
+            this.MaximumSize = new System.Drawing.Size(1100, 600);
+            this.MinimumSize = new System.Drawing.Size(1100, 600);
             this.Name = "MainForm";
             this.Text = "Image Parser";
-            this.statusStrip1.ResumeLayout(false);
-            this.statusStrip1.PerformLayout();
             this.websitesListBox.ResumeLayout(false);
             this.websitesListBox.PerformLayout();
             this.ResumeLayout(false);
@@ -312,9 +326,6 @@
         }
 
         #endregion
-        private StatusStrip statusStrip1;
-        private ToolStripStatusLabel progressLabel;
-        private ToolStripProgressBar progressBar;
         private MaterialSkin.Controls.MaterialCheckedListBox websitesListBox;
         private MaterialSkin.Controls.MaterialMultiLineTextBox statusTextBox;
         private MaterialSkin.Controls.MaterialButton goButton;
@@ -328,5 +339,8 @@
         private MaterialSkin.Controls.MaterialLabel label1;
         private MaterialSkin.Controls.MaterialLabel label2;
         private MaterialSkin.Controls.MaterialLabel label3;
+        private MaterialSkin.Controls.MaterialSwitch themeSwitcher;
+        private MaterialSkin.Controls.MaterialLabel progressLabel;
+        private MaterialSkin.Controls.MaterialProgressBar progressBar;
     }
 }

@@ -4,12 +4,10 @@ namespace ParserCore.Helpers
 {
     public static class HtmlDownloader
     {
-        private const int REQ_TIMEOUT = 2000;
-        private const int RETRIES_COUNT = 5;
+        public const int REQ_TIMEOUT = 2000;
+        public const int RETRIES_COUNT = 5;
 
-        public static async Task<IEnumerable<string>> DownloadAsync(IEnumerable<string> urls,
-                                                                     IProgress<ProgressInfo> progress,
-                                                                     CancellationToken token)
+        public static async Task<IEnumerable<string>> DownloadAsync(IEnumerable<string> urls, IProgress<ProgressInfo> progress, CancellationToken token)
         {
             var pages = new List<string>();
             var links = new ConcurrentBag<string>(urls);
@@ -27,12 +25,13 @@ namespace ParserCore.Helpers
                             {
                                 CancellationToken = token,
                                 MaxDegreeOfParallelism = Environment.ProcessorCount
-                            }, (string? link, ParallelLoopState pls) =>
+                            }, 
+                            (string? link, ParallelLoopState pls) =>
                             {
                                 try
                                 {
-                                    if (!links.TryTake(out link)) return;
-                                    var page = HttpHelper.GetStringAsync(link, token).Result;
+                                    if (!links.TryPeek(out link)) return;
+                                    string? page = HttpHelper.GetStringAsync(link, token).Result;
                                     if (page is null) return;
                                     pages.Add(page);
                                     pInfo.ItemsProcessed.Add(link);
@@ -51,33 +50,33 @@ namespace ParserCore.Helpers
                 }, token);
             if (!plr.IsCompleted && !token.IsCancellationRequested)
             {
-                await Task.Run(() => LoadPagesSequentially(pages, urls, progress, pInfo, token), token);
+                return await Task.Run(() => DownloadSequentially(urls, progress, token), token);
             }
             return pages;
         }
 
-        private static void LoadPagesSequentially(List<string> pages, IEnumerable<string> urls, IProgress<ProgressInfo> progress, ProgressInfo pInfo, CancellationToken token)
+        private static IEnumerable<string> DownloadSequentially(IEnumerable<string> urls, IProgress<ProgressInfo> progress, CancellationToken token)
         {
-            pages.Clear();
-            pInfo.ItemsProcessed.Clear();
-            pInfo.TextStatus = "Download restarted in sequentially mode";
-            progress.Report(pInfo);
+            var pages = new List<string>();
+            var links = new List<string>(urls);
             int urlsCount = urls.Count();
+
+            var pInfo = new ProgressInfo() { TextStatus = "Download restarted in sequentially mode" };
+            progress.Report(pInfo);
 
             try
             {
-                foreach (string url in urls)
+                foreach (string link in links)
                 {
                     token.ThrowIfCancellationRequested();
                     for (int i = 0; i < RETRIES_COUNT; i++)
                     {
                         try
                         {
-                            string? page = HttpHelper.GetStringAsync(url, token).Result;
-                            if (page == null) return;
+                            string? page = HttpHelper.GetStringAsync(link, token).Result;
+                            if (page == null) continue;
                             pages.Add(page);
-                            pInfo.ItemsProcessed.Add(url);
-                            pInfo.TextStatus = "Downloading pages...";
+                            pInfo.ItemsProcessed.Add(link);
                             pInfo.Percentage = pages.Count * 100 / urlsCount;
                             progress.Report(pInfo);
                         }
@@ -92,8 +91,9 @@ namespace ParserCore.Helpers
                         }
                     }
                 }
-            }
+            } 
             catch { }
+            return pages;
         }
     }
 }

@@ -6,7 +6,9 @@ namespace ParserCore.Helpers
     [SupportedOSPlatform("windows")]
     public static class ImageDownloader
     {
-        private const int REQ_TIMEOUT = 2000;
+        public const int REQ_TIMEOUT = 2000;
+        public const int RETRIES_COUNT = 5;
+
         public static string WorkingDirectory
         {
             get
@@ -17,13 +19,24 @@ namespace ParserCore.Helpers
                 return dir.FullName;
             }
         }
-        private static async Task<bool> DownloadImageAsync(string imageUrl, CancellationToken token)
+        private static bool DownloadImageAsync(string imageUrl, CancellationToken token)
         {
             string imgName = imageUrl.Split("/").Last();
             string imgPath = Path.Combine(WorkingDirectory, imgName);
-
-            using var input = new FileStream(imgPath, FileMode.Create);
-            await HttpHelper.GetFileAsync(imageUrl, input, token);
+            for (int i = 0; i < 5; i++)
+            {
+                try
+                {
+                    using var input = new FileStream(imgPath, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
+                    HttpHelper.GetFileAsync(imageUrl, input, token).Wait(token);
+                    break;
+                }
+                catch (IOException ioex)
+                {
+                    //TODO: Handle case when file being used by another process
+                    //TODO: Use win32 to find process? Any managed api there?
+                }
+            }
             return true;
         }
         private static bool GetImageFromBase64String(string source)
@@ -57,7 +70,7 @@ namespace ParserCore.Helpers
                                     {
                                         if (!isBase64Encoded)
                                         {
-                                            _ = DownloadImageAsync(source, token).Result; downloadedConut++;
+                                            _ = DownloadImageAsync(source, token); downloadedConut++;
                                         }
                                         else { _ = GetImageFromBase64String(source); }
                                     }
@@ -76,47 +89,52 @@ namespace ParserCore.Helpers
                 }, token);
             if (!plr.IsCompleted && !token.IsCancellationRequested)
             {
-                await Task.Run(() => DownloadImages(sources, pInfo, progress, token), token);
+                await Task.Run(() => DownloadImages(sources, progress, token), token);
             }
             pInfo.TextStatus = "Done";
             pInfo.Percentage = 100;
             progress.Report(pInfo);
         }
 
-        private static void DownloadImages(IEnumerable<string> sources, ProgressInfo pInfo, IProgress<ProgressInfo> progress, CancellationToken token)
+        private static void DownloadImages(IEnumerable<string> sources, IProgress<ProgressInfo> progress, CancellationToken token)
         {
             int downloadedCount = 0;
-            pInfo.ItemsProcessed.Clear();
-            _ = ClearWorkingDirectory(WorkingDirectory);
-            pInfo.TextStatus = "Download will be restarted synchronously";
+            var pInfo = new ProgressInfo() { TextStatus = "Download restarted sequentially" };
+            _ = ClearWorkingDirectory();
             progress.Report(pInfo);
             int urlsCount = sources.Count();
 
-            foreach (string source in sources)
+            try
             {
-                token.ThrowIfCancellationRequested();
-                for (int i = 0; i < 5; i++)
+                foreach (string source in sources)
                 {
-                    try
+                    token.ThrowIfCancellationRequested();
+                    for (int i = 0; i < RETRIES_COUNT; i++)
                     {
-                        DownloadImageAsync(source, token).RunSynchronously(); downloadedCount++;
+                        try
+                        {
+                            _ = DownloadImageAsync(source, token);
+                            downloadedCount++;
+                        }
+                        catch (AggregateException ex) when (ex.InnerException is HttpRequestException)
+                        {
+                            Thread.Sleep(REQ_TIMEOUT); continue;
+                        }
                     }
-                    catch (AggregateException ex) when (ex.InnerException is HttpRequestException)
-                    {
-                        Thread.Sleep(REQ_TIMEOUT); continue;
-                    }
+                    pInfo.ItemsProcessed.Add(source);
+                    pInfo.Percentage = downloadedCount * 100 / urlsCount;
+                    progress.Report(pInfo);
                 }
+            }
+            catch (OperationCanceledException)
+            {
 
-                pInfo.ItemsProcessed.Add(source);
-                pInfo.TextStatus = "Downloading images..";
-                pInfo.Percentage = downloadedCount * 100 / urlsCount;
-                progress.Report(pInfo);
             }
         }
-        private static bool ClearWorkingDirectory(string workingDirectory)
+        private static bool ClearWorkingDirectory()
         {
-            Directory.EnumerateFiles(workingDirectory).ToList().ForEach(file => File.Delete(file));
-            return !Directory.EnumerateFiles(workingDirectory).Any();
+            Directory.EnumerateFiles(WorkingDirectory).ToList().ForEach(file => File.Delete(file));
+            return !Directory.EnumerateFiles(WorkingDirectory).Any();
         }
     }
 }
