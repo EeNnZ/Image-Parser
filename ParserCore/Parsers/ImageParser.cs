@@ -6,7 +6,6 @@ namespace ParserCore.Parsers
 {
     public abstract class ImageParser
     {
-        public bool SearchMode => !string.IsNullOrEmpty(Options.SearchQuery);
         protected IParserOptions _options = null!;
         public IParserOptions Options
         {

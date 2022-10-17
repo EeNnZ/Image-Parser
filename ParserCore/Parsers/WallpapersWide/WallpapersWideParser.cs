@@ -11,13 +11,8 @@ namespace ParserCore.Parsers.WallpapersWide
             : base(options) { }
         protected override string MakeUrl(int pageId)
         {
-            string url;
-            if (SearchMode)
-            {
-                string searchQuery = Options.SearchQuery.Replace(" ", "%20").Trim().ToLowerInvariant();
-                url = $"{Options.BaseUrl}{Options.SearchPrefix}/{pageId}?q={searchQuery}";
-            }
-            else { url = $"{Options.BaseUrl}{Options.PagePrefix}/{pageId}"; }
+            string searchQuery = Options.SearchQuery.Replace(" ", "%20").Trim().ToLowerInvariant();
+            string url = $"{Options.BaseUrl}{Options.SearchPrefix}/{pageId}?q={searchQuery}";
             return url;
         }
 
