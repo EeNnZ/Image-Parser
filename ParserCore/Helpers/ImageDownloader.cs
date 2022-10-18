@@ -31,7 +31,7 @@ namespace ParserCore.Helpers
                     HttpHelper.GetFileAsync(imageUrl, input, token).Wait(token);
                     break;
                 }
-                catch (IOException ioex)
+                catch (IOException ex)
                 {
                     //TODO: Handle case when file being used by another process
                     //TODO: Use win32 to find process? Any managed api there?
@@ -49,6 +49,7 @@ namespace ParserCore.Helpers
         }
         public static async Task DownloadAsync(IEnumerable<string> sources, IProgress<ProgressInfo> progress, CancellationToken token)
         {
+            //TODO: Separate directories for images of each parser
             var pInfo = new ProgressInfo() { TextStatus = "Downloading images" };
             int linksCount = sources.Count();
             int downloadedConut = 0;

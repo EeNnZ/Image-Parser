@@ -45,6 +45,7 @@
             this.label2 = new MaterialSkin.Controls.MaterialLabel();
             this.label3 = new MaterialSkin.Controls.MaterialLabel();
             this.themeSwitcher = new MaterialSkin.Controls.MaterialSwitch();
+            this.exitButton = new MaterialSkin.Controls.MaterialButton();
             this.websitesListBox.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -183,7 +184,7 @@
             this.cancelButton.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
             this.cancelButton.UseAccentColor = false;
             this.cancelButton.UseVisualStyleBackColor = true;
-            this.cancelButton.Click += new System.EventHandler(this.CancelButtonOnClick);
+            this.cancelButton.Click += new System.EventHandler(this.CancelButtonClick);
             // 
             // searchTextBox
             // 
@@ -284,7 +285,7 @@
             // 
             this.themeSwitcher.AutoSize = true;
             this.themeSwitcher.Depth = 0;
-            this.themeSwitcher.Location = new System.Drawing.Point(892, 532);
+            this.themeSwitcher.Location = new System.Drawing.Point(28, 530);
             this.themeSwitcher.Margin = new System.Windows.Forms.Padding(0);
             this.themeSwitcher.MouseLocation = new System.Drawing.Point(-1, -1);
             this.themeSwitcher.MouseState = MaterialSkin.MouseState.HOVER;
@@ -294,13 +295,34 @@
             this.themeSwitcher.TabIndex = 39;
             this.themeSwitcher.Text = "Dark Theme";
             this.themeSwitcher.UseVisualStyleBackColor = true;
-            this.themeSwitcher.CheckedChanged += new System.EventHandler(this.ThemeSwitcherCheckedChanged);
+            this.themeSwitcher.CheckStateChanged += new System.EventHandler(this.ThemeSwitcherStateChanged);
+            // 
+            // exitButton
+            // 
+            this.exitButton.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.exitButton.Density = MaterialSkin.Controls.MaterialButton.MaterialButtonDensity.Default;
+            this.exitButton.Depth = 0;
+            this.exitButton.HighEmphasis = true;
+            this.exitButton.Icon = null;
+            this.exitButton.Location = new System.Drawing.Point(959, 530);
+            this.exitButton.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
+            this.exitButton.MouseState = MaterialSkin.MouseState.HOVER;
+            this.exitButton.Name = "exitButton";
+            this.exitButton.NoAccentTextColor = System.Drawing.Color.Empty;
+            this.exitButton.Size = new System.Drawing.Size(77, 36);
+            this.exitButton.TabIndex = 40;
+            this.exitButton.Text = "Exit";
+            this.exitButton.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
+            this.exitButton.UseAccentColor = false;
+            this.exitButton.UseVisualStyleBackColor = true;
+            this.exitButton.Click += new System.EventHandler(this.ExitButtonClick);
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1100, 600);
+            this.Controls.Add(this.exitButton);
             this.Controls.Add(this.themeSwitcher);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
@@ -342,5 +364,6 @@
         private MaterialSkin.Controls.MaterialSwitch themeSwitcher;
         private MaterialSkin.Controls.MaterialLabel progressLabel;
         private MaterialSkin.Controls.MaterialProgressBar progressBar;
+        private MaterialSkin.Controls.MaterialButton exitButton;
     }
 }

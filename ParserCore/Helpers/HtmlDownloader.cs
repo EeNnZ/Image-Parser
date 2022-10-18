@@ -79,6 +79,7 @@ namespace ParserCore.Helpers
                             pInfo.ItemsProcessed.Add(link);
                             pInfo.Percentage = pages.Count * 100 / urlsCount;
                             progress.Report(pInfo);
+                            break;
                         }
                         catch (AggregateException aex) when (aex.InnerException is HttpRequestException)
                         {
