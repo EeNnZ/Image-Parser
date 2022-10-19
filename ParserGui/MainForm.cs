@@ -94,7 +94,7 @@ namespace ParserGui
         private void SetLightTheme()
         {
             _sm.Theme = MaterialSkinManager.Themes.LIGHT;
-            _sm.ColorScheme = new ColorScheme(Primary.Grey300, Primary.LightBlue900, Primary.Blue800, Accent.Blue200, TextShade.BLACK);
+            _sm.ColorScheme = new ColorScheme(Primary.Grey300, Primary.DeepPurple500, Primary.DeepPurple900, Accent.DeepPurple700, TextShade.BLACK);
             statusTextBox.BorderStyle = BorderStyle.FixedSingle;
         }
         #endregion

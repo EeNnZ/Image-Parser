@@ -30,7 +30,7 @@ namespace ParserCore.Helpers
                             {
                                 try
                                 {
-                                    if (!links.TryPeek(out link)) return;
+                                    if (!links.TryTake(out link)) return;
                                     string? page = HttpHelper.GetStringAsync(link, token).Result;
                                     if (page is null) return;
                                     pages.Add(page);

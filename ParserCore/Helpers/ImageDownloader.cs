@@ -21,8 +21,17 @@ namespace ParserCore.Helpers
         }
         private static bool DownloadImageAsync(string imageUrl, CancellationToken token)
         {
-            string imgName = imageUrl.Split("/").Last();
-            string imgPath = Path.Combine(WorkingDirectory, imgName);
+            string[] urlParts = imageUrl.Split("/");
+            string imgName = urlParts.Last();
+            string website = urlParts[2];
+            string localWorkingDirectory = Path.Combine(WorkingDirectory, website);
+
+            if (!Directory.Exists(localWorkingDirectory))
+            {
+                Directory.CreateDirectory(localWorkingDirectory);
+            }
+
+            string imgPath = Path.Combine(localWorkingDirectory, imgName);
             for (int i = 0; i < 5; i++)
             {
                 try
@@ -49,7 +58,6 @@ namespace ParserCore.Helpers
         }
         public static async Task DownloadAsync(IEnumerable<string> sources, IProgress<ProgressInfo> progress, CancellationToken token)
         {
-            //TODO: Separate directories for images of each parser
             var pInfo = new ProgressInfo() { TextStatus = "Downloading images" };
             int linksCount = sources.Count();
             int downloadedConut = 0;
@@ -101,7 +109,7 @@ namespace ParserCore.Helpers
         {
             int downloadedCount = 0;
             var pInfo = new ProgressInfo() { TextStatus = "Download restarted sequentially" };
-            _ = ClearWorkingDirectory();
+            //_ = ClearWorkingDirectory();
             progress.Report(pInfo);
             int urlsCount = sources.Count();
 
