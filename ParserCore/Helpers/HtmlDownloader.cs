@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using ParserCore.Parsers;
 
 namespace ParserCore.Helpers
 {
@@ -7,12 +8,12 @@ namespace ParserCore.Helpers
         public const int REQ_TIMEOUT = 2000;
         public const int RETRIES_COUNT = 5;
 
-        public static async Task<IEnumerable<string>> DownloadAsync(IEnumerable<string> urls, IProgress<ProgressInfo> progress, CancellationToken token)
+        public static async Task<IEnumerable<string>> DownloadAsync(IEnumerable<string> urls, IProgress<ProgressChangedEventArgs> progress, CancellationToken token)
         {
             var pages = new List<string>();
             var links = new ConcurrentBag<string>(urls);
 
-            var pInfo = new ProgressInfo() { TextStatus = "Downloading pages..." };
+            var pInfo = new ProgressChangedEventArgs() { TextStatus = "Downloading pages..." };
             progress.Report(pInfo);
             int urlsCount = urls.Count();
             ParallelLoopResult plr = default;
@@ -55,13 +56,13 @@ namespace ParserCore.Helpers
             return pages;
         }
 
-        private static IEnumerable<string> DownloadSequentially(IEnumerable<string> urls, IProgress<ProgressInfo> progress, CancellationToken token)
+        private static IEnumerable<string> DownloadSequentially(IEnumerable<string> urls, IProgress<ProgressChangedEventArgs> progress, CancellationToken token)
         {
             var pages = new List<string>();
             var links = new List<string>(urls);
             int urlsCount = urls.Count();
 
-            var pInfo = new ProgressInfo() { TextStatus = "Download restarted in sequentially mode" };
+            var pInfo = new ProgressChangedEventArgs() { TextStatus = "Download restarted in sequentially mode" };
             progress.Report(pInfo);
 
             try

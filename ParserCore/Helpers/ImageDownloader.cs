@@ -1,5 +1,6 @@
 ﻿using System.Drawing;
 using System.Runtime.Versioning;
+using ParserCore.Parsers;
 
 namespace ParserCore.Helpers
 {
@@ -56,9 +57,9 @@ namespace ParserCore.Helpers
             //TODO: Save decoded to file
             return true;
         }
-        public static async Task DownloadAsync(IEnumerable<string> sources, IProgress<ProgressInfo> progress, CancellationToken token)
+        public static async Task DownloadAsync(IEnumerable<string> sources, IProgress<ProgressChangedEventArgs> progress, CancellationToken token)
         {
-            var pInfo = new ProgressInfo() { TextStatus = "Downloading images" };
+            var pInfo = new ProgressChangedEventArgs() { TextStatus = "Downloading images" };
             int linksCount = sources.Count();
             int downloadedConut = 0;
             progress.Report(pInfo);
@@ -105,10 +106,10 @@ namespace ParserCore.Helpers
             progress.Report(pInfo);
         }
 
-        private static void DownloadImages(IEnumerable<string> sources, IProgress<ProgressInfo> progress, CancellationToken token)
+        private static void DownloadImages(IEnumerable<string> sources, IProgress<ProgressChangedEventArgs> progress, CancellationToken token)
         {
             int downloadedCount = 0;
-            var pInfo = new ProgressInfo() { TextStatus = "Download restarted sequentially" };
+            var pInfo = new ProgressChangedEventArgs() { TextStatus = "Download restarted sequentially" };
             //_ = ClearWorkingDirectory();
             progress.Report(pInfo);
             int urlsCount = sources.Count();

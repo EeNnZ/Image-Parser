@@ -8,7 +8,7 @@ namespace ParserCore.Parsers.WallpaperfFlare
     {
         public WallpaperFlareParser(IParserOptions options)
             : base(options) { }
-        public override async Task<IEnumerable<string>> Parse(IProgress<ProgressInfo> progress, CancellationToken token)
+        public override async Task<IEnumerable<string>> Parse(IProgress<ProgressChangedEventArgs> progress, CancellationToken token)
         {
             var pagesWithEncodedImages = await base.Parse(progress, token);
             var docsWithEncodedImages = await Doc.GetHtmlDocumentsAsync(pagesWithEncodedImages, progress, token);

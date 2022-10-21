@@ -2,15 +2,23 @@ using MaterialSkin;
 using MaterialSkin.Controls;
 using ParserCore;
 using ParserCore.Helpers;
+using ParserCore.Parsers;
+using System.Runtime.CompilerServices;
+using Timer = System.Windows.Forms.Timer;
 
 namespace ParserGui
 {
     public partial class MainForm : MaterialForm
     {
+        #region Fields
+        private bool _connected = false;
         private CancellationTokenSource _cts = new();
         private readonly string[] _websites = new[] { "wallhaven.cc", "wallpaperswide.com" };
         private readonly MaterialSkinManager _sm;
-        private readonly Progress<ProgressInfo> _mainProgress, _wallhavenProgress, _wallpapersWideProgress;
+        private readonly Progress<ProgressChangedEventArgs> _mainProgress, _wallhavenProgress, _wallpapersWideProgress;
+        private readonly ConnectionChecker _connectionChecker = new(2000);
+        private readonly Timer _timer; 
+        #endregion
         public MainForm()
         {
             InitializeComponent();
@@ -18,14 +26,21 @@ namespace ParserGui
             _sm.AddFormToManage(this);
             _sm.ThemeChanged += SkinManagerThemeChanged;
             SetTheme();
-            HttpHelper.InitializeClientWithDefaultHeaders();
             _mainProgress = new(MainProgressChanged);
             _wallhavenProgress = new(WallhavenProgressChanged);
             _wallpapersWideProgress = new(WallpapersWideProgressChanged);
+            _timer = new() { Interval = _connectionChecker.CheckInterval };
+            _timer.Tick += CheckConnection;
+            _timer.Start();
+            HttpHelper.InitializeClientWithDefaultHeaders();
         }
-
         private async Task DoWork()
         {
+            if (!_connected) 
+            {
+                var dr = MessageBox.Show("You're not connected to the internet", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                if (dr == DialogResult.OK) return;
+            }
             var tasks = GetParseTasks();
             try
             {
@@ -68,6 +83,18 @@ namespace ParserGui
                 ParserFactory.GetParser(_websites[1], points, searchQuery).Parse(_wallpapersWideProgress, _cts.Token),
             };
         }
+        private void CheckConnection(object? sender, EventArgs e)
+        {
+            Task.Run(async () =>
+            {
+                bool connected = await _connectionChecker.CheckIfConnected();
+                progressLabel.Invoke(() =>
+                {
+                    progressLabel.Text = connected ? "Connected" : "Looks like you're not connected to the internet";
+                });
+                _connected = connected;
+            });
+        }
 
         #region Theme control
         private void SetTheme()
@@ -100,7 +127,7 @@ namespace ParserGui
         #endregion
 
         #region Progress event handlers
-        private void WallhavenProgressChanged(ProgressInfo e)
+        private void WallhavenProgressChanged(ProgressChangedEventArgs e)
         {
             if (e.Percentage > 100) e.Percentage = 100;
             progressBar2.Value = e.Percentage;
@@ -109,7 +136,7 @@ namespace ParserGui
             progressLabel.Text = e.TextStatus;
         }
 
-        private void WallpapersWideProgressChanged(ProgressInfo e)
+        private void WallpapersWideProgressChanged(ProgressChangedEventArgs e)
         {
             if (e.Percentage > 100) e.Percentage = 100;
             progressBar1.Value = e.Percentage;
@@ -118,7 +145,7 @@ namespace ParserGui
             progressLabel.Text = e.TextStatus;
         }
 
-        private void MainProgressChanged(ProgressInfo e)
+        private void MainProgressChanged(ProgressChangedEventArgs e)
         {
             if (e.Percentage > 100) e.Percentage = 100;
             progressBar.Visible = true;
@@ -169,6 +196,11 @@ namespace ParserGui
             {
                 websitesListBox.Items.Add(website); 
             }
+        }
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            _timer.Dispose();
+            base.OnFormClosing(e);
         }
     }
 }

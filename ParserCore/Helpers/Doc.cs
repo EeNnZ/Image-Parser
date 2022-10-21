@@ -1,11 +1,12 @@
 ﻿using AngleSharp.Html.Dom;
 using AngleSharp.Html.Parser;
+using ParserCore.Parsers;
 
 namespace ParserCore.Helpers
 {
     public static class Doc
     {
-        public static async Task<IEnumerable<IHtmlDocument>> GetHtmlDocumentsAsync(IEnumerable<string> urls, IProgress<ProgressInfo> progress, CancellationToken token)
+        public static async Task<IEnumerable<IHtmlDocument>> GetHtmlDocumentsAsync(IEnumerable<string> urls, IProgress<ProgressChangedEventArgs> progress, CancellationToken token)
         {
             var htmlPages = await HtmlDownloader.DownloadAsync(urls, progress, token);
 
@@ -13,13 +14,13 @@ namespace ParserCore.Helpers
             return await GetDocumentsAsync(htmlPages, progress, token);
         }
         private static async Task<IEnumerable<IHtmlDocument>> GetDocumentsAsync(IEnumerable<string> htmlPages,
-                                                                                IProgress<ProgressInfo> progress,
+                                                                                IProgress<ProgressChangedEventArgs> progress,
                                                                                 CancellationToken token)
         {
             var parser = new HtmlParser();
             var documents = new List<IHtmlDocument>();
 
-            var pInfo = new ProgressInfo() { TextStatus = "Preparing documents" };
+            var pInfo = new ProgressChangedEventArgs() { TextStatus = "Preparing documents" };
             int pagesCount = htmlPages.Count();
             progress.Report(pInfo);
 

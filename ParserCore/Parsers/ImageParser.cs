@@ -24,7 +24,7 @@ namespace ParserCore.Parsers
         {
             Options = options;
         }
-        public virtual async Task<IEnumerable<string>> Parse(IProgress<ProgressInfo> progress, CancellationToken token)
+        public virtual async Task<IEnumerable<string>> Parse(IProgress<ProgressChangedEventArgs> progress, CancellationToken token)
         {
             IEnumerable<string> urls = GetUrls();
 

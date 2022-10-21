@@ -1,6 +1,6 @@
-﻿namespace ParserCore
+﻿namespace ParserCore.Parsers
 {
-    public class ProgressInfo
+    public class ProgressChangedEventArgs : EventArgs
     {
         public string TextStatus { get; set; } = "";
         public int Percentage { get; set; } = 0;

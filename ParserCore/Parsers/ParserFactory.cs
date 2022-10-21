@@ -1,10 +1,9 @@
 ﻿using ParserCore.Interfaces;
-using ParserCore.Parsers;
 using ParserCore.Parsers.Wallhaven;
 using ParserCore.Parsers.WallpapersWide;
 using System.Runtime.Versioning;
 
-namespace ParserCore
+namespace ParserCore.Parsers
 {
     [SupportedOSPlatform("windows")]
     public static class ParserFactory
