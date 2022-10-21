@@ -1,5 +1,5 @@
-﻿using System.Collections.Concurrent;
-using ParserCore.Parsers;
+﻿using ParserCore.Parsers;
+using System.Collections.Concurrent;
 
 namespace ParserCore.Helpers
 {
@@ -26,7 +26,7 @@ namespace ParserCore.Helpers
                             {
                                 CancellationToken = token,
                                 MaxDegreeOfParallelism = Environment.ProcessorCount
-                            }, 
+                            },
                             (string? link, ParallelLoopState pls) =>
                             {
                                 try
@@ -93,7 +93,7 @@ namespace ParserCore.Helpers
                         }
                     }
                 }
-            } 
+            }
             catch { }
             return pages;
         }

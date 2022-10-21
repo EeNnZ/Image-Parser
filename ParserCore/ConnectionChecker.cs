@@ -1,10 +1,4 @@
-﻿using ParserCore.Helpers;
-using System;
-using System.Collections.Generic;
-using System.Net.NetworkInformation;
-using System.Runtime.InteropServices.ComTypes;
-using System.Runtime.InteropServices;
-using System.Text;
+﻿using System.Net.NetworkInformation;
 
 namespace ParserCore
 {

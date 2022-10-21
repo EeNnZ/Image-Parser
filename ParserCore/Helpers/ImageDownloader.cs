@@ -1,6 +1,6 @@
-﻿using System.Drawing;
+﻿using ParserCore.Parsers;
+using System.Drawing;
 using System.Runtime.Versioning;
-using ParserCore.Parsers;
 
 namespace ParserCore.Helpers
 {

@@ -3,7 +3,6 @@ using MaterialSkin.Controls;
 using ParserCore;
 using ParserCore.Helpers;
 using ParserCore.Parsers;
-using System.Runtime.CompilerServices;
 using Timer = System.Windows.Forms.Timer;
 
 namespace ParserGui
@@ -19,7 +18,7 @@ namespace ParserGui
         private readonly MaterialSkinManager _sm;
         private readonly Progress<ProgressChangedEventArgs> _mainProgress, _wallhavenProgress, _wallpapersWideProgress, _hdwallprogress;
         private readonly ConnectionChecker _connectionChecker = new(2000);
-        private readonly Timer _timer; 
+        private readonly Timer _timer;
         #endregion
         public MainForm()
         {
@@ -99,7 +98,7 @@ namespace ParserGui
                 });
                 _connected = connected;
             });
-        } 
+        }
         #endregion
 
         #region Theme control
@@ -216,7 +215,7 @@ namespace ParserGui
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
             _timer.Dispose();
-            base.OnFormClosing(e); 
+            base.OnFormClosing(e);
             #endregion
         }
     }

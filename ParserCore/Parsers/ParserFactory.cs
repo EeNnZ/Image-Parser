@@ -1,5 +1,4 @@
-﻿using ParserCore.Interfaces;
-using ParserCore.Parsers.Wallhaven;
+﻿using ParserCore.Parsers.Wallhaven;
 using ParserCore.Parsers.WallpapersWide;
 using Parsers.HdWallpapers;
 using System.Runtime.Versioning;

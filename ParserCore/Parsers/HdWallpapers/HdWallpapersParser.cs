@@ -2,11 +2,7 @@
 using ParserCore;
 using ParserCore.Interfaces;
 using ParserCore.Parsers;
-using System;
-using System.Collections.Generic;
 using System.Runtime.Versioning;
-using System.Security.Cryptography;
-using System.Text;
 namespace Parsers.HdWallpapers
 {
     [SupportedOSPlatform("windows")]
@@ -26,7 +22,7 @@ namespace Parsers.HdWallpapers
                         from attr in elem.Attributes.Where(attr => attr.Name == "href")
                         let baseUrl = Options.BaseUrl
                         select baseUrl + attr.Value[1..];
-                        //select string.Concat(baseUrl, attr.Value);
+            //select string.Concat(baseUrl, attr.Value);
             return links;
 
         }
@@ -38,7 +34,7 @@ namespace Parsers.HdWallpapers
             var elements = doc.QuerySelectorAll("a")
                 .Where(x => x != null && x.HasAttribute("href"));
             var sources = from elem in elements
-                          from attr in elem.Attributes.Where (attr => attr.Name == "href")
+                          from attr in elem.Attributes.Where(attr => attr.Name == "href")
                           where attr.Value.Contains("download") && attr.Value.Contains(Options.Resolution ?? Display.Resolution)
                           select Options.BaseUrl + attr.Value;
 

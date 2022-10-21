@@ -18,10 +18,10 @@ namespace Scanner.Parts
         public static void SendText(string text)
         {
             Process notepad = Process.Start(@"notepad.exe");
-            Thread.Sleep(50);
+            Thread.Sleep(300);
             IntPtr notepadTextbox = FindWindowEx(notepad.MainWindowHandle, IntPtr.Zero, "Edit", null);
             SendMessage(notepadTextbox, WM_SETTEXT, 0, text);
         }
     }
-    
+
 }
