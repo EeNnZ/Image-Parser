@@ -16,7 +16,7 @@ namespace ParserCore.Parsers.WallpapersWide
             return url;
         }
 
-        protected override IEnumerable<string> GetImageListPageLinks(IHtmlDocument document)
+        protected override IEnumerable<string> GetLinksToPagesWithSingleImage(IHtmlDocument document)
         {
             var elements = document.QuerySelectorAll("div")
                 .Where(x => x != null

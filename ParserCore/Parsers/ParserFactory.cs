@@ -1,6 +1,7 @@
 ﻿using ParserCore.Interfaces;
 using ParserCore.Parsers.Wallhaven;
 using ParserCore.Parsers.WallpapersWide;
+using Parsers.HdWallpapers;
 using System.Runtime.Versioning;
 
 namespace ParserCore.Parsers
@@ -17,6 +18,12 @@ namespace ParserCore.Parsers
                 EndPoint = points.ep
             }),
             "wallpaperswide.com" => new WallpapersWideParser(new WallpapersWideOptions
+            {
+                SearchQuery = searchQuery,
+                StartPoint = points.sp,
+                EndPoint = points.ep
+            }),
+            "hdwallpapers.in" => new HdWallpapersParser(new HdWallpapersOptions
             {
                 SearchQuery = searchQuery,
                 StartPoint = points.sp,

@@ -29,7 +29,11 @@ namespace ParserCore.Helpers
         public static async Task<string?> GetStringAsync(string url, CancellationToken token)
         {
             var response = await Client.GetAsync(url, token);
-            response.EnsureSuccessStatusCode();
+            if (response.StatusCode == System.Net.HttpStatusCode.Forbidden)
+            {
+                Client.DefaultRequestHeaders.Add("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36 Edg/107.0.1418.13");
+                var retry = await GetStringAsync(url, token);
+            }
             string result = await response.Content.ReadAsStringAsync(token);
             return result;
         }

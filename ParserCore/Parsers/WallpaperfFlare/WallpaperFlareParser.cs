@@ -15,7 +15,7 @@ namespace ParserCore.Parsers.WallpaperfFlare
             var base64Strings = docsWithEncodedImages.SelectMany(x => GetBase64StringsAsync(docsWithEncodedImages));
             return base64Strings;
         }
-        protected override IEnumerable<string> GetImageListPageLinks(IHtmlDocument doc)
+        protected override IEnumerable<string> GetLinksToPagesWithSingleImage(IHtmlDocument doc)
         {
             //< a itemprop = "url" 
             //    href = "https://www.wallpaperflare.com/brown-wooden-bench-night-city-lights-cityscape-anime-lantern-wallpaper-mwcit"

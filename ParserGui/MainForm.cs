@@ -13,9 +13,11 @@ namespace ParserGui
         #region Fields
         private bool _connected = false;
         private CancellationTokenSource _cts = new();
-        private readonly string[] _websites = new[] { "wallhaven.cc", "wallpaperswide.com" };
+
+        //TODO: Add new parsers (https://wallpaperaccess.com/, https://www.hdwallpapers.in/, https://wallpaperstock.net/)
+        private readonly string[] _websites = new[] { "wallhaven.cc", "wallpaperswide.com", "hdwallpapers.in" };
         private readonly MaterialSkinManager _sm;
-        private readonly Progress<ProgressChangedEventArgs> _mainProgress, _wallhavenProgress, _wallpapersWideProgress;
+        private readonly Progress<ProgressChangedEventArgs> _mainProgress, _wallhavenProgress, _wallpapersWideProgress, _hdwallprogress;
         private readonly ConnectionChecker _connectionChecker = new(2000);
         private readonly Timer _timer; 
         #endregion
@@ -29,14 +31,16 @@ namespace ParserGui
             _mainProgress = new(MainProgressChanged);
             _wallhavenProgress = new(WallhavenProgressChanged);
             _wallpapersWideProgress = new(WallpapersWideProgressChanged);
+            _hdwallprogress = new(HdWallpapersProgressChanged);
             _timer = new() { Interval = _connectionChecker.CheckInterval };
             _timer.Tick += CheckConnection;
             _timer.Start();
             HttpHelper.InitializeClientWithDefaultHeaders();
         }
+        #region Methods
         private async Task DoWork()
         {
-            if (!_connected) 
+            if (!_connected)
             {
                 var dr = MessageBox.Show("You're not connected to the internet", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 if (dr == DialogResult.OK) return;
@@ -71,7 +75,7 @@ namespace ParserGui
 #if DEBUG
             int[] range = { 1, 3 };
             (int sp, int ep) points = (range[0], range[1]);
-            string searchQuery = "night city";
+            string searchQuery = "forest road";
 #else
             int[] range = rangeTextBox.Text.Replace(" ", "").Split('-').Select(s => int.Parse(s)).ToArray();
             (int sp, int ep) points = (range[0], range[1]);
@@ -79,8 +83,9 @@ namespace ParserGui
 #endif
             return new List<Task<IEnumerable<string>>>()
             {
-                ParserFactory.GetParser(_websites[0], points, searchQuery).Parse(_wallhavenProgress, _cts.Token),
-                ParserFactory.GetParser(_websites[1], points, searchQuery).Parse(_wallpapersWideProgress, _cts.Token),
+                //ParserFactory.GetParser(_websites[0], points, searchQuery).Parse(_wallhavenProgress, _cts.Token),
+                //ParserFactory.GetParser(_websites[1], points, searchQuery).Parse(_wallpapersWideProgress, _cts.Token),
+                ParserFactory.GetParser(_websites[2], points, searchQuery).Parse(_hdwallprogress, _cts.Token)
             };
         }
         private void CheckConnection(object? sender, EventArgs e)
@@ -94,7 +99,8 @@ namespace ParserGui
                 });
                 _connected = connected;
             });
-        }
+        } 
+        #endregion
 
         #region Theme control
         private void SetTheme()
@@ -130,13 +136,22 @@ namespace ParserGui
         private void WallhavenProgressChanged(ProgressChangedEventArgs e)
         {
             if (e.Percentage > 100) e.Percentage = 100;
+            progressBar3.Value = e.Percentage;
+            label6.Text = $"{e.Percentage} %";
+            statusTextBox.Lines = e.ItemsProcessed.ToArray();
+            progressLabel.Text = e.TextStatus;
+        }
+
+        private void WallpapersWideProgressChanged(ProgressChangedEventArgs e)
+        {
+            if (e.Percentage > 100) e.Percentage = 100;
             progressBar2.Value = e.Percentage;
             label5.Text = $"{e.Percentage} %";
             statusTextBox.Lines = e.ItemsProcessed.ToArray();
             progressLabel.Text = e.TextStatus;
         }
 
-        private void WallpapersWideProgressChanged(ProgressChangedEventArgs e)
+        private void HdWallpapersProgressChanged(ProgressChangedEventArgs e)
         {
             if (e.Percentage > 100) e.Percentage = 100;
             progressBar1.Value = e.Percentage;
@@ -189,18 +204,20 @@ namespace ParserGui
         }
         #endregion
 
+        #region Overrides
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
             foreach (var website in _websites)
             {
-                websitesListBox.Items.Add(website); 
+                websitesListBox.Items.Add(website);
             }
         }
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
             _timer.Dispose();
-            base.OnFormClosing(e);
+            base.OnFormClosing(e); 
+            #endregion
         }
     }
 }

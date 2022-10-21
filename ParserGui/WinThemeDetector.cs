@@ -13,11 +13,9 @@ namespace ParserGui
         private static extern bool ShouldSystemUseDarkMode();
         public static bool ShouldUseDarkMode()
         {
-            bool useDark;
             try
             {
-                useDark = ShouldSystemUseDarkMode();
-                return useDark;
+                return ShouldSystemUseDarkMode();
             }
             catch (Exception)
             {

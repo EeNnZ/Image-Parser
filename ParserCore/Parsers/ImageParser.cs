@@ -29,11 +29,19 @@ namespace ParserCore.Parsers
             IEnumerable<string> urls = GetUrls();
 
             var documentsWithImageList = await Doc.GetHtmlDocumentsAsync(urls, progress, token);
-            var linksToPagesWithSingleImage = documentsWithImageList.SelectMany(doc => GetImageListPageLinks(doc));
+            var linksToPagesWithSingleImage = documentsWithImageList.SelectMany(doc => GetLinksToPagesWithSingleImage(doc));
 
             var documentsWithSingleImage = await Doc.GetHtmlDocumentsAsync(linksToPagesWithSingleImage, progress, token);
+            var sources = new List<string>();
+#if DEBUG
+            foreach (var document in documentsWithSingleImage)
+            {
+                var collection = GetImageSources(document);
+                sources.AddRange(collection);
+            }
+#else
             var sources = documentsWithSingleImage.SelectMany(doc => GetImageSources(doc));
-
+#endif
             return sources;
 
         }
@@ -51,7 +59,7 @@ namespace ParserCore.Parsers
         }
 
         protected abstract IEnumerable<string> GetImageSources(IHtmlDocument doc);
-        protected abstract IEnumerable<string> GetImageListPageLinks(IHtmlDocument doc);
+        protected abstract IEnumerable<string> GetLinksToPagesWithSingleImage(IHtmlDocument doc);
         protected abstract string MakeUrl(int id);
     }
 }

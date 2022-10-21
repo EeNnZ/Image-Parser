@@ -46,6 +46,8 @@
             this.label3 = new MaterialSkin.Controls.MaterialLabel();
             this.themeSwitcher = new MaterialSkin.Controls.MaterialSwitch();
             this.exitButton = new MaterialSkin.Controls.MaterialButton();
+            this.progressBar3 = new MaterialSkin.Controls.MaterialProgressBar();
+            this.label6 = new MaterialSkin.Controls.MaterialLabel();
             this.websitesListBox.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -53,6 +55,8 @@
             // 
             this.websitesListBox.AutoScroll = true;
             this.websitesListBox.BackColor = System.Drawing.SystemColors.Control;
+            this.websitesListBox.Controls.Add(this.label6);
+            this.websitesListBox.Controls.Add(this.progressBar3);
             this.websitesListBox.Controls.Add(this.progressBar);
             this.websitesListBox.Controls.Add(this.progressLabel);
             this.websitesListBox.Controls.Add(this.label5);
@@ -309,13 +313,34 @@
             this.exitButton.MouseState = MaterialSkin.MouseState.HOVER;
             this.exitButton.Name = "exitButton";
             this.exitButton.NoAccentTextColor = System.Drawing.Color.Empty;
-            this.exitButton.Size = new System.Drawing.Size(77, 36);
+            this.exitButton.Size = new System.Drawing.Size(64, 36);
             this.exitButton.TabIndex = 40;
             this.exitButton.Text = "Exit";
             this.exitButton.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
             this.exitButton.UseAccentColor = false;
             this.exitButton.UseVisualStyleBackColor = true;
             this.exitButton.Click += new System.EventHandler(this.ExitButtonClick);
+            // 
+            // progressBar3
+            // 
+            this.progressBar3.Depth = 0;
+            this.progressBar3.Location = new System.Drawing.Point(233, 97);
+            this.progressBar3.MouseState = MaterialSkin.MouseState.HOVER;
+            this.progressBar3.Name = "progressBar3";
+            this.progressBar3.Size = new System.Drawing.Size(165, 5);
+            this.progressBar3.TabIndex = 42;
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Depth = 0;
+            this.label6.Font = new System.Drawing.Font("Roboto", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
+            this.label6.Location = new System.Drawing.Point(406, 90);
+            this.label6.MouseState = MaterialSkin.MouseState.HOVER;
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(22, 19);
+            this.label6.TabIndex = 43;
+            this.label6.Text = "0%";
             // 
             // MainForm
             // 
@@ -365,5 +390,7 @@
         private MaterialSkin.Controls.MaterialLabel progressLabel;
         private MaterialSkin.Controls.MaterialProgressBar progressBar;
         private MaterialSkin.Controls.MaterialButton exitButton;
+        private MaterialSkin.Controls.MaterialLabel label6;
+        private MaterialSkin.Controls.MaterialProgressBar progressBar3;
     }
 }
