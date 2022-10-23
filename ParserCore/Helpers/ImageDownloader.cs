@@ -186,7 +186,7 @@ namespace ParserCore.Helpers
         private static void DownloadImages(IEnumerable<string> sources,
                                            IProgress<ProgressChangedEventArgs> progress,
                                            CancellationToken token,
-                                           [CallerMemberName]string callerName = "")
+                                           [CallerMemberName] string callerName = "")
         {
             Log.Information("Thread: {ThreadId} with caller: {Caller} entered to {MethodName}",
                 Environment.CurrentManagedThreadId, callerName, MethodBase.GetCurrentMethod()?.Name);
@@ -226,11 +226,6 @@ namespace ParserCore.Helpers
             {
                 Log.Error("Images download canceled");
             }
-        }
-        private static bool ClearWorkingDirectory()
-        {
-            Directory.EnumerateFiles(WorkingDirectory).ToList().ForEach(file => File.Delete(file));
-            return !Directory.EnumerateFiles(WorkingDirectory).Any();
         }
 
         private static bool CheckIfFileLockedByAnotherProcess(string imgPath, out IEnumerable<Process> lockers , [CallerMemberName] string callerName = "")
