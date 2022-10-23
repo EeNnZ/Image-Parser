@@ -13,7 +13,7 @@ namespace ParserCore
 
         public async Task<bool> CheckIfConnected()
         {
-            //TODO: Use win32 api
+            //TODO: Use win32 api?
             var ping = new Ping();
             try
             {

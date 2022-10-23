@@ -1,6 +1,9 @@
-﻿using ParserCore.Parsers;
+﻿using Helpers;
+using ParserCore.Parsers;
 using Serilog;
+using System.Diagnostics;
 using System.Drawing;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.Versioning;
@@ -43,13 +46,21 @@ namespace ParserCore.Helpers
                 }
                 catch(Exception ex)
                 {
-                    Log.Error("Exception caught while creatin directory {exception}", ex.Message);
+                    Log.Error("Exception caught while creating directory {exception}", ex.Message);
                 }
             }
 
             string imgPath = Path.Combine(localWorkingDirectory, imgName);
+            bool fileLocked = CheckIfFileLockedByAnotherProcess(imgPath, out IEnumerable<Process> lockers);
+            if (fileLocked)
+            {
+                Log.Information("Cannot download {imgFilePath} because of file is being locked by one or more processes ({firstLockerInCollection})"
+                    , imgPath
+                    , lockers.First());
+                return false;
+            }
             Log.Information("Downloading image {imageUrl} to {imagePath}", imgName, imgPath);
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < RETRIES_COUNT; i++)
             {
                 Log.Debug("{counter} try", i);
                 try
@@ -62,28 +73,36 @@ namespace ParserCore.Helpers
                 catch (IOException ex)
                 {
                     Log.Error("Exception caught {exception}", ex.Message);
-                    //TODO: Implement method and add logging
-                    bool fHandleReleased = TryReleaseFileHandle(imgPath);
-                    if (!fHandleReleased && i > 2) 
+                    continue;
+                    /*if (!lockers.Any()) throw;
+                    foreach (var locker in lockers)
                     {
-                        Log.Error("Cannot release shared file {file} - skipping it", imgPath);
-                        break;
-                    }
-                    else
-                    {
-                        Log.Information("{file} released successfully, trying to process it again");
-                        continue;
-                    }
-                    //TODO: Handle case when file being used by another process
-                    //TODO: Use win32 to find process? Any managed api there?
+                        Log.Information("Found {lockersCount} lockers");
+                        bool closeMessageSent = locker.CloseMainWindow();
+                        if (closeMessageSent)
+                        {
+                            Log.Information("Close request sent to {lockerProcess}", locker.ProcessName);
+                            bool exited = locker.WaitForExit(30000);
+                            if (exited)
+                            {
+                                Log.Information("{lockerProcess} terminated by user, retrying to save image", locker.ProcessName);
+                                continue;
+                            }
+                            else
+                            {
+                                Log.Information("{lockerProcess} not terminated by user, killing", locker.ProcessName);
+                                locker.Kill();
+                                continue;
+                            }
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }*/
                 }
             }
             return true;
-        }
-
-        private static bool TryReleaseFileHandle(string imgPath)
-        {
-            throw new NotImplementedException();
         }
 
         private static bool GetImageFromBase64String(string source)
@@ -212,6 +231,16 @@ namespace ParserCore.Helpers
         {
             Directory.EnumerateFiles(WorkingDirectory).ToList().ForEach(file => File.Delete(file));
             return !Directory.EnumerateFiles(WorkingDirectory).Any();
+        }
+
+        private static bool CheckIfFileLockedByAnotherProcess(string imgPath, out IEnumerable<Process> lockers , [CallerMemberName] string callerName = "")
+        {
+            Log.Debug("Thread: {ThreadId} with caller: {Caller} entered to {MethodName}",
+                Environment.CurrentManagedThreadId, callerName, MethodBase.GetCurrentMethod()?.Name);
+
+            lockers = FileUtil.WhoIsLocking(imgPath);
+            bool locked = lockers.Any();
+            return locked;
         }
     }
 }
