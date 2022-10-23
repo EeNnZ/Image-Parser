@@ -3,6 +3,8 @@ using MaterialSkin.Controls;
 using ParserCore;
 using ParserCore.Helpers;
 using ParserCore.Parsers;
+using Serilog;
+using System;
 using Timer = System.Windows.Forms.Timer;
 
 namespace ParserGui
@@ -13,7 +15,7 @@ namespace ParserGui
         private bool _connected = false;
         private CancellationTokenSource _cts = new();
 
-        //TODO: Add new parsers (https://wallpaperaccess.com/, https://www.hdwallpapers.in/, https://wallpaperstock.net/)
+        //TODO: Add new parsers (https://wallpaperaccess.com/, https://wallpaperstock.net/)
         private readonly string[] _websites = new[] { "wallhaven.cc", "wallpaperswide.com", "hdwallpapers.in" };
         private readonly MaterialSkinManager _sm;
         private readonly Progress<ProgressChangedEventArgs> _mainProgress, _wallhavenProgress, _wallpapersWideProgress, _hdwallprogress;
@@ -23,18 +25,35 @@ namespace ParserGui
         public MainForm()
         {
             InitializeComponent();
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Debug()
+                .WriteTo.File(Path.Combine(Environment.CurrentDirectory, "log.txt"),
+                outputTemplate: "{Timestamp: HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
+                .CreateLogger();
+            Log.Information("Initializing skin manager");
             _sm = MaterialSkinManager.Instance;
             _sm.AddFormToManage(this);
             _sm.ThemeChanged += SkinManagerThemeChanged;
             SetTheme();
+            Log.Information("Skin manager initialized");
+
+            Log.Information("Initializing progresses");
             _mainProgress = new(MainProgressChanged);
             _wallhavenProgress = new(WallhavenProgressChanged);
             _wallpapersWideProgress = new(WallpapersWideProgressChanged);
             _hdwallprogress = new(HdWallpapersProgressChanged);
+            Log.Information("Progresses initialized");
+
+            Log.Information("Initializing timer");
             _timer = new() { Interval = _connectionChecker.CheckInterval };
             _timer.Tick += CheckConnection;
             _timer.Start();
+            Log.Information("Timer initialized and started");
+
             HttpHelper.InitializeClientWithDefaultHeaders();
+#if DEBUG
+            statusTextBox.Text = Environment.CurrentDirectory;
+#endif
         }
         #region Methods
         private async Task DoWork()
@@ -89,14 +108,14 @@ namespace ParserGui
         }
         private void CheckConnection(object? sender, EventArgs e)
         {
+            Log.Debug("Checking internet connection");
             Task.Run(async () =>
             {
-                bool connected = await _connectionChecker.CheckIfConnected();
+                _connected = await _connectionChecker.CheckIfConnected();
                 progressLabel.Invoke(() =>
                 {
-                    progressLabel.Text = connected ? "Connected" : "Looks like you're not connected to the internet";
+                    connectionStatusLabel.Text = _connected ? "Connected" : "Looks like you're not connected to the internet";
                 });
-                _connected = connected;
             });
         }
         #endregion
@@ -106,6 +125,7 @@ namespace ParserGui
         {
             if (WinThemeDetector.ShouldUseDarkMode()) SetDarkTheme();
             else SetLightTheme();
+            Log.Information("Theme is set up");
         }
 
         private void SkinManagerThemeChanged(object sender)
@@ -114,8 +134,16 @@ namespace ParserGui
         }
         private void ThemeSwitcherStateChanged(object sender, EventArgs e)
         {
-            if (themeSwitcher.CheckState == CheckState.Checked) SetDarkTheme();
-            else SetLightTheme();
+            if (themeSwitcher.CheckState == CheckState.Checked)
+            {
+                SetDarkTheme();
+                Log.Debug("Theme changed to dark");
+            }
+            else
+            {
+                SetLightTheme();
+                Log.Debug("Theme changed to light");
+            }
         }
 
         private void SetDarkTheme()
@@ -126,7 +154,7 @@ namespace ParserGui
         private void SetLightTheme()
         {
             _sm.Theme = MaterialSkinManager.Themes.LIGHT;
-            _sm.ColorScheme = new ColorScheme(Primary.Grey300, Primary.DeepPurple500, Primary.DeepPurple900, Accent.DeepPurple700, TextShade.BLACK);
+            _sm.ColorScheme = new ColorScheme(Primary.DeepPurple500, Primary.DeepPurple500, Primary.DeepPurple900, Accent.DeepPurple700, TextShade.WHITE);
             statusTextBox.BorderStyle = BorderStyle.FixedSingle;
         }
         #endregion
@@ -177,7 +205,7 @@ namespace ParserGui
         #endregion
 
         #region Button clicks
-        private async void GoButtonCLick(object sender, EventArgs e)
+        private async void GoButtonClick(object sender, EventArgs e)
         {
             await DoWork();
         }
@@ -187,12 +215,16 @@ namespace ParserGui
         }
         private void CancelButtonClick(object sender, EventArgs e)
         {
+            Log.Information("Cancel button clicked");
             if (_cts.Token.CanBeCanceled)
             {
+                Log.Debug("Token is able to be canceled, cancellation requested");
+                Log.Information("Cancellation requested");
                 _cts.Cancel();
             }
             else
             {
+                Log.Error("Cancellation denied");
                 var dialogResult = MessageBox.Show("Execution cannot ba canceled right now", Text, MessageBoxButtons.RetryCancel, MessageBoxIcon.Error);
                 if (dialogResult == DialogResult.Retry)
                 {
@@ -215,6 +247,9 @@ namespace ParserGui
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
             _timer.Dispose();
+            Log.Debug("Timer disposed");
+            Log.Information("Closing application");
+            Log.CloseAndFlush();
             base.OnFormClosing(e);
             #endregion
         }

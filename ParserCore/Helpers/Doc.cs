@@ -1,31 +1,57 @@
 ﻿using AngleSharp.Html.Dom;
 using AngleSharp.Html.Parser;
 using ParserCore.Parsers;
+using Serilog;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace ParserCore.Helpers
 {
     public static class Doc
     {
-        public static async Task<IEnumerable<IHtmlDocument>> GetHtmlDocumentsAsync(IEnumerable<string> urls, IProgress<ProgressChangedEventArgs> progress, CancellationToken token)
+        public static async Task<IEnumerable<IHtmlDocument>> GetHtmlDocumentsAsync(IEnumerable<string> urls,
+                                                                                   IProgress<ProgressChangedEventArgs> progress,
+                                                                                   CancellationToken token,
+                                                                                   [CallerMemberName]string callerName = "")
         {
-            var htmlPages = await HtmlDownloader.DownloadAsync(urls, progress, token);
+            Log.Information("Thread: {ThreadId} with caller: {Caller} entered to {MethodName}",
+                Environment.CurrentManagedThreadId, callerName, MethodBase.GetCurrentMethod()?.Name);
+            var htmlPages = await HtmlDownloader.DownloadParallelAsync(urls, progress, token);
+            Log.Information("Html pages downloaded, collection contains {itemsCount} elements", htmlPages.Count());
+            if (htmlPages == null)
+            {
+                Log.Error("Html pages collection is null");
+                throw new NullReferenceException(nameof(htmlPages));
+            }
+            else if (!htmlPages.Any())
+            {
+                Log.Error("Html pages collection contains zero elements");
+                throw new Exception("collection is empty");
+            }
 
-            if (htmlPages == null) throw new NullReferenceException(nameof(htmlPages));
-            return await GetDocumentsAsync(htmlPages, progress, token);
+            return await GetDocumentsParallelAsync(htmlPages, progress, token);
         }
-        private static async Task<IEnumerable<IHtmlDocument>> GetDocumentsAsync(IEnumerable<string> htmlPages,
+        private static async Task<IEnumerable<IHtmlDocument>> GetDocumentsParallelAsync(IEnumerable<string> htmlPages,
                                                                                 IProgress<ProgressChangedEventArgs> progress,
-                                                                                CancellationToken token)
+                                                                                CancellationToken token,
+                                                                                [CallerMemberName]string callerName = "")
         {
+            Log.Information("Thread: {ThreadId} with caller: {Caller} entered to {MethodName}",
+                             Environment.CurrentManagedThreadId,
+                             callerName,
+                             MethodBase.GetCurrentMethod()?.Name);
             var parser = new HtmlParser();
             var documents = new List<IHtmlDocument>();
 
             var pInfo = new ProgressChangedEventArgs() { TextStatus = "Preparing documents" };
             int pagesCount = htmlPages.Count();
             progress.Report(pInfo);
-
+            Log.Information("Parallel parse task is about to run in {ClassName}->{MethodName}",
+                      typeof(HtmlDownloader).Name,
+                      MethodBase.GetCurrentMethod()?.Name);
             await Task.Run(() =>
                     {
+                        Log.Information("Task: {TaskId} started on thread: {ThreadId}", Task.CurrentId, Environment.CurrentManagedThreadId);
                         try
                         {
                             Parallel.ForEach(htmlPages, new ParallelOptions
@@ -47,7 +73,10 @@ namespace ParserCore.Helpers
                         }
                         catch { }
                     }, token);
-
+            Log.Information("Thread: {ThreadId} with caller: {Caller} is about to exit from {MethodName}",
+                             Environment.CurrentManagedThreadId,
+                             callerName,
+                             MethodBase.GetCurrentMethod()?.Name);
             return documents;
         }
     }

@@ -1,6 +1,7 @@
 ﻿using AngleSharp.Html.Dom;
 using ParserCore.Helpers;
 using ParserCore.Interfaces;
+using System.Runtime.CompilerServices;
 
 namespace ParserCore.Parsers.WallpaperfFlare
 {
@@ -8,7 +9,8 @@ namespace ParserCore.Parsers.WallpaperfFlare
     {
         public WallpaperFlareParser(IParserOptions options)
             : base(options) { }
-        public override async Task<IEnumerable<string>> Parse(IProgress<ProgressChangedEventArgs> progress, CancellationToken token)
+        public override async Task<IEnumerable<string>> Parse(IProgress<ProgressChangedEventArgs> progress, CancellationToken token,
+                                                             [CallerMemberName] string callerName = "")
         {
             var pagesWithEncodedImages = await base.Parse(progress, token);
             var docsWithEncodedImages = await Doc.GetHtmlDocumentsAsync(pagesWithEncodedImages, progress, token);

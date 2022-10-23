@@ -30,6 +30,8 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.websitesListBox = new MaterialSkin.Controls.MaterialCheckedListBox();
+            this.label6 = new MaterialSkin.Controls.MaterialLabel();
+            this.progressBar3 = new MaterialSkin.Controls.MaterialProgressBar();
             this.progressBar = new MaterialSkin.Controls.MaterialProgressBar();
             this.progressLabel = new MaterialSkin.Controls.MaterialLabel();
             this.label5 = new MaterialSkin.Controls.MaterialLabel();
@@ -46,8 +48,7 @@
             this.label3 = new MaterialSkin.Controls.MaterialLabel();
             this.themeSwitcher = new MaterialSkin.Controls.MaterialSwitch();
             this.exitButton = new MaterialSkin.Controls.MaterialButton();
-            this.progressBar3 = new MaterialSkin.Controls.MaterialProgressBar();
-            this.label6 = new MaterialSkin.Controls.MaterialLabel();
+            this.connectionStatusLabel = new MaterialSkin.Controls.MaterialLabel();
             this.websitesListBox.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -71,6 +72,27 @@
             this.websitesListBox.Striped = false;
             this.websitesListBox.StripeDarkColor = System.Drawing.Color.Empty;
             this.websitesListBox.TabIndex = 29;
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Depth = 0;
+            this.label6.Font = new System.Drawing.Font("Roboto", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
+            this.label6.Location = new System.Drawing.Point(406, 90);
+            this.label6.MouseState = MaterialSkin.MouseState.HOVER;
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(22, 19);
+            this.label6.TabIndex = 43;
+            this.label6.Text = "0%";
+            // 
+            // progressBar3
+            // 
+            this.progressBar3.Depth = 0;
+            this.progressBar3.Location = new System.Drawing.Point(233, 97);
+            this.progressBar3.MouseState = MaterialSkin.MouseState.HOVER;
+            this.progressBar3.Name = "progressBar3";
+            this.progressBar3.Size = new System.Drawing.Size(165, 5);
+            this.progressBar3.TabIndex = 42;
             // 
             // progressBar
             // 
@@ -157,7 +179,7 @@
             this.goButton.Depth = 0;
             this.goButton.HighEmphasis = true;
             this.goButton.Icon = null;
-            this.goButton.Location = new System.Drawing.Point(337, 531);
+            this.goButton.Location = new System.Drawing.Point(265, 529);
             this.goButton.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
             this.goButton.MouseState = MaterialSkin.MouseState.HOVER;
             this.goButton.Name = "goButton";
@@ -168,7 +190,7 @@
             this.goButton.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
             this.goButton.UseAccentColor = false;
             this.goButton.UseVisualStyleBackColor = true;
-            this.goButton.Click += new System.EventHandler(this.GoButtonCLick);
+            this.goButton.Click += new System.EventHandler(this.GoButtonClick);
             // 
             // cancelButton
             // 
@@ -177,7 +199,7 @@
             this.cancelButton.Depth = 0;
             this.cancelButton.HighEmphasis = true;
             this.cancelButton.Icon = null;
-            this.cancelButton.Location = new System.Drawing.Point(409, 531);
+            this.cancelButton.Location = new System.Drawing.Point(337, 529);
             this.cancelButton.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
             this.cancelButton.MouseState = MaterialSkin.MouseState.HOVER;
             this.cancelButton.Name = "cancelButton";
@@ -308,7 +330,7 @@
             this.exitButton.Depth = 0;
             this.exitButton.HighEmphasis = true;
             this.exitButton.Icon = null;
-            this.exitButton.Location = new System.Drawing.Point(959, 530);
+            this.exitButton.Location = new System.Drawing.Point(422, 529);
             this.exitButton.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
             this.exitButton.MouseState = MaterialSkin.MouseState.HOVER;
             this.exitButton.Name = "exitButton";
@@ -321,32 +343,24 @@
             this.exitButton.UseVisualStyleBackColor = true;
             this.exitButton.Click += new System.EventHandler(this.ExitButtonClick);
             // 
-            // progressBar3
+            // connectionStatusLabel
             // 
-            this.progressBar3.Depth = 0;
-            this.progressBar3.Location = new System.Drawing.Point(233, 97);
-            this.progressBar3.MouseState = MaterialSkin.MouseState.HOVER;
-            this.progressBar3.Name = "progressBar3";
-            this.progressBar3.Size = new System.Drawing.Size(165, 5);
-            this.progressBar3.TabIndex = 42;
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Depth = 0;
-            this.label6.Font = new System.Drawing.Font("Roboto", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
-            this.label6.Location = new System.Drawing.Point(406, 90);
-            this.label6.MouseState = MaterialSkin.MouseState.HOVER;
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(22, 19);
-            this.label6.TabIndex = 43;
-            this.label6.Text = "0%";
+            this.connectionStatusLabel.AutoSize = true;
+            this.connectionStatusLabel.Depth = 0;
+            this.connectionStatusLabel.Font = new System.Drawing.Font("Roboto", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
+            this.connectionStatusLabel.Location = new System.Drawing.Point(25, 615);
+            this.connectionStatusLabel.MouseState = MaterialSkin.MouseState.HOVER;
+            this.connectionStatusLabel.Name = "connectionStatusLabel";
+            this.connectionStatusLabel.Size = new System.Drawing.Size(129, 19);
+            this.connectionStatusLabel.TabIndex = 41;
+            this.connectionStatusLabel.Text = "Connection status";
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1100, 600);
+            this.ClientSize = new System.Drawing.Size(1100, 650);
+            this.Controls.Add(this.connectionStatusLabel);
             this.Controls.Add(this.exitButton);
             this.Controls.Add(this.themeSwitcher);
             this.Controls.Add(this.label3);
@@ -361,8 +375,8 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(4);
-            this.MaximumSize = new System.Drawing.Size(1100, 600);
-            this.MinimumSize = new System.Drawing.Size(1100, 600);
+            this.MaximumSize = new System.Drawing.Size(1100, 650);
+            this.MinimumSize = new System.Drawing.Size(1100, 650);
             this.Name = "MainForm";
             this.Text = "Image Parser";
             this.websitesListBox.ResumeLayout(false);
@@ -392,5 +406,6 @@
         private MaterialSkin.Controls.MaterialButton exitButton;
         private MaterialSkin.Controls.MaterialLabel label6;
         private MaterialSkin.Controls.MaterialProgressBar progressBar3;
+        private MaterialSkin.Controls.MaterialLabel connectionStatusLabel;
     }
 }

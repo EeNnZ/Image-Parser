@@ -1,6 +1,9 @@
 ﻿using AngleSharp.Html.Dom;
 using ParserCore.Helpers;
 using ParserCore.Interfaces;
+using Serilog;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace ParserCore.Parsers
 {
@@ -24,23 +27,46 @@ namespace ParserCore.Parsers
         {
             Options = options;
         }
-        public virtual async Task<IEnumerable<string>> Parse(IProgress<ProgressChangedEventArgs> progress, CancellationToken token)
+        public virtual async Task<IEnumerable<string>> Parse(IProgress<ProgressChangedEventArgs> progress,
+                                                             CancellationToken token,
+                                                             [CallerMemberName] string callerName = "")
         {
+            Log.Information("Thread: {ThreadId} with caller: {Caller} entered to {ClassName}->{MethodName}",
+                             Environment.CurrentManagedThreadId,
+                             callerName,
+                             MethodBase.GetCurrentMethod()?.ReflectedType,
+                             MethodBase.GetCurrentMethod()?.Name);
+
+            Log.Information("Getting urls");
             IEnumerable<string> urls = GetUrls();
+            Log.Information("Got {urlsCount} urls", urls.Count());
 
+            Log.Information("Getting html documents with image list");
             var documentsWithImageList = await Doc.GetHtmlDocumentsAsync(urls, progress, token);
-            var linksToPagesWithSingleImage = documentsWithImageList.SelectMany(doc => GetLinksToPagesWithSingleImage(doc));
+            Log.Information("Got {documentsCount} documents", documentsWithImageList.Count());
 
+            Log.Information("Getting links to single image pages");
+            var linksToPagesWithSingleImage = documentsWithImageList.SelectMany(doc => GetLinksToPagesWithSingleImage(doc));
+            Log.Information("Got {linksCount}", linksToPagesWithSingleImage.Count());
+
+            Log.Information("Getting html documents with image list");
             var documentsWithSingleImage = await Doc.GetHtmlDocumentsAsync(linksToPagesWithSingleImage, progress, token);
-            var sources = new List<string>();
+            Log.Information("Got {documentsCount} documents", documentsWithSingleImage.Count());
+
 #if DEBUG
+            var sources = new List<string>();
+            Log.Debug("Iterating through documents with single image started");
             foreach (var document in documentsWithSingleImage)
             {
+                Log.Debug("Processig {uri}", document.BaseUri);
                 var collection = GetImageSources(document);
+                Log.Debug("{sourcesCount} sources parsed from {uri}", collection.Count(), document.BaseUri);
                 sources.AddRange(collection);
             }
 #else
+            Log.Information("Getting images urls");
             var sources = documentsWithSingleImage.SelectMany(doc => GetImageSources(doc));
+            Log.Information("Got {urlsCount} images urls", sources.Count());
 #endif
             return sources;
 
