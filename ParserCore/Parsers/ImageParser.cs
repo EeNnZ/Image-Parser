@@ -68,7 +68,7 @@ namespace ParserCore.Parsers
             var sources = documentsWithSingleImage.SelectMany(doc => GetImageSources(doc));
             Log.Information("Got {urlsCount} images urls", sources.Count());
 #endif
-            return sources;
+            return Options.ImageCount > 0 ? sources.Take(Options.ImageCount) : sources;
 
         }
 

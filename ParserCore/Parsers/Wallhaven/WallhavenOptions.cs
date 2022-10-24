@@ -9,6 +9,7 @@ namespace ParserCore.Parsers.Wallhaven
         public string SearchPrefix => "search?q=";
         public int StartPoint { get; set; }
         public int EndPoint { get; set; }
+        public int ImageCount { get; set; }
         public string SearchQuery { get; set; } = "";
         public string? Resolution { get; set; }
     }

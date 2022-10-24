@@ -9,5 +9,6 @@
         int EndPoint { get; set; }
         string SearchQuery { get; set; }
         string? Resolution { get; set; }
+        int ImageCount { get; set; }
     }
 }

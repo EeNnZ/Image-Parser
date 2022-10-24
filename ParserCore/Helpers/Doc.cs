@@ -1,4 +1,5 @@
-﻿using AngleSharp.Html.Dom;
+﻿using AngleSharp.Dom;
+using AngleSharp.Html.Dom;
 using AngleSharp.Html.Parser;
 using ParserCore.Parsers;
 using Serilog;
@@ -78,6 +79,21 @@ namespace ParserCore.Helpers
                              callerName,
                              MethodBase.GetCurrentMethod()?.Name);
             return documents;
+        }
+        public static async Task<IHtmlDocument> GetDocumentAsync(string url,
+                                                                  IProgress<ProgressChangedEventArgs> progress,
+                                                                  CancellationToken token,
+                                                                  [CallerMemberName] string callerName = "")
+        {
+            Log.Information("Thread: {ThreadId} with caller: {Caller} entered to {MethodName}",
+                Environment.CurrentManagedThreadId, callerName, MethodBase.GetCurrentMethod()?.Name);
+            var html = await HttpHelper.GetStringAsync(url, token);
+            if (html == null || string.IsNullOrWhiteSpace(html))
+            {
+                throw new NullReferenceException($"{nameof(html)} is null or empty");
+            }
+            Log.Information("Html page downloaded");
+            return new HtmlParser().ParseDocument(html);
         }
     }
 }

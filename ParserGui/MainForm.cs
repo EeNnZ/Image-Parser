@@ -5,6 +5,7 @@ using ParserCore.Helpers;
 using ParserCore.Parsers;
 using Serilog;
 using System;
+using System.Diagnostics;
 using Timer = System.Windows.Forms.Timer;
 
 namespace ParserGui
@@ -14,20 +15,29 @@ namespace ParserGui
         #region Fields
         private bool _connected = false;
         private CancellationTokenSource _cts = new();
+        private readonly string _logFilePath = Path.Combine(Environment.CurrentDirectory, "log.txt");
 
         //TODO: Add new parsers (https://wallpaperaccess.com/, https://wallpaperstock.net/)
-        private readonly string[] _websites = new[] { "wallhaven.cc", "wallpaperswide.com", "hdwallpapers.in" };
+        private readonly string[] _websites = new[] { "wallpaperaccess.com", "wallhaven.cc", "wallpaperswide.com", "hdwallpapers.in" };
         private readonly MaterialSkinManager _sm;
-        private readonly Progress<ProgressChangedEventArgs> _mainProgress, _wallhavenProgress, _wallpapersWideProgress, _hdwallprogress;
+        private readonly Progress<ProgressChangedEventArgs> _mainProgress,
+            _wallhavenProgress,
+            _wallpapersWideProgress,
+            _hdwallprogress,
+            _wallpaperAccessProgress;
         private readonly ConnectionChecker _connectionChecker = new(2000);
         private readonly Timer _timer;
         #endregion
         public MainForm()
         {
             InitializeComponent();
+            if (File.Exists(_logFilePath))
+            {
+                File.Delete(_logFilePath);
+            }
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Debug()
-                .WriteTo.File(Path.Combine(Environment.CurrentDirectory, "log.txt"),
+                .WriteTo.File(_logFilePath,
                 outputTemplate: "{Timestamp: HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
                 .CreateLogger();
             Log.Information("Initializing skin manager");
@@ -42,6 +52,7 @@ namespace ParserGui
             _wallhavenProgress = new(WallhavenProgressChanged);
             _wallpapersWideProgress = new(WallpapersWideProgressChanged);
             _hdwallprogress = new(HdWallpapersProgressChanged);
+            _wallpaperAccessProgress = new(WallpaperAccessProgressChanged);
             Log.Information("Progresses initialized");
 
             Log.Information("Initializing timer");
@@ -103,7 +114,8 @@ namespace ParserGui
             {
                 //ParserFactory.GetParser(_websites[0], points, searchQuery).Parse(_wallhavenProgress, _cts.Token),
                 //ParserFactory.GetParser(_websites[1], points, searchQuery).Parse(_wallpapersWideProgress, _cts.Token),
-                ParserFactory.GetParser(_websites[2], points, searchQuery).Parse(_hdwallprogress, _cts.Token)
+                //ParserFactory.GetParser(_websites[2], points, searchQuery).Parse(_hdwallprogress, _cts.Token)
+                ParserFactory.GetParser(_websites[0], points, searchQuery, 50).Parse(_wallpaperAccessProgress, _cts.Token)
             };
         }
         private void CheckConnection(object? sender, EventArgs e)
@@ -197,6 +209,15 @@ namespace ParserGui
             progressLabel.Text = e.TextStatus;
         }
 
+        private void WallpaperAccessProgressChanged(ProgressChangedEventArgs e)
+        {
+            if (e.Percentage > 100) e.Percentage = 100;
+            progressBar4.Value = e.Percentage;
+            label7.Text = e.TextStatus;
+            statusTextBox.Lines = e.ItemsProcessed.ToArray();
+            progressLabel.Text = e.TextStatus;
+        }
+
         private void StatusTextBoxTextChanged(object sender, EventArgs e)
         {
             statusTextBox.SelectionStart = statusTextBox.Text.Length;
@@ -213,6 +234,12 @@ namespace ParserGui
         {
             Application.Exit();
         }
+
+        private void OpenLogFileButtonClick(object sender, EventArgs e)
+        {
+            Process.Start(new ProcessStartInfo(_logFilePath) { UseShellExecute = true });
+        }
+
         private void CancelButtonClick(object sender, EventArgs e)
         {
             Log.Information("Cancel button clicked");
