@@ -13,7 +13,6 @@ namespace ParserGui
     public partial class MainForm : MaterialForm
     {
         #region Fields
-        private bool _connected = false;
         private CancellationTokenSource _cts = new();
         private readonly string _logFilePath = Path.Combine(Environment.CurrentDirectory, "log.txt");
 
@@ -25,8 +24,6 @@ namespace ParserGui
             _wallpapersWideProgress,
             _hdwallprogress,
             _wallpaperAccessProgress;
-        private readonly ConnectionChecker _connectionChecker = new(2000);
-        private readonly Timer _timer;
         #endregion
         public MainForm()
         {
@@ -56,9 +53,6 @@ namespace ParserGui
             Log.Information("Progresses initialized");
 
             Log.Information("Initializing timer");
-            _timer = new() { Interval = _connectionChecker.CheckInterval };
-            _timer.Tick += CheckConnection;
-            _timer.Start();
             Log.Information("Timer initialized and started");
 
             HttpHelper.InitializeClientWithDefaultHeaders();
@@ -69,7 +63,7 @@ namespace ParserGui
         #region Methods
         private async Task DoWork()
         {
-            if (!_connected)
+            if (await ConnectionChecker.CheckIfConnected())
             {
                 var dr = MessageBox.Show("You're not connected to the internet", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 if (dr == DialogResult.OK) return;
@@ -117,18 +111,6 @@ namespace ParserGui
                 //ParserFactory.GetParser(_websites[2], points, searchQuery).Parse(_hdwallprogress, _cts.Token)
                 ParserFactory.GetParser(_websites[0], points, searchQuery, 50).Parse(_wallpaperAccessProgress, _cts.Token)
             };
-        }
-        private void CheckConnection(object? sender, EventArgs e)
-        {
-            Log.Debug("Checking internet connection");
-            Task.Run(async () =>
-            {
-                _connected = await _connectionChecker.CheckIfConnected();
-                progressLabel.Invoke(() =>
-                {
-                    connectionStatusLabel.Text = _connected ? "Connected" : "Looks like you're not connected to the internet";
-                });
-            });
         }
         #endregion
 
@@ -273,8 +255,6 @@ namespace ParserGui
         }
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
-            _timer.Dispose();
-            Log.Debug("Timer disposed");
             Log.Information("Closing application");
             Log.CloseAndFlush();
             base.OnFormClosing(e);
