@@ -110,7 +110,12 @@ namespace ParserCore.Helpers
             byte[] bytes = Convert.FromBase64String(source);
             using var stream = new MemoryStream(bytes);
             var decoded = new Bitmap(stream);
-            //TODO: Save decoded to file
+            var base64Dir = Path.Combine(WorkingDirectory, "base64_decoded");
+            if (!Directory.Exists(base64Dir)) 
+            {
+                Directory.CreateDirectory(base64Dir);
+            }
+            decoded.Save(Path.Combine(base64Dir, $"{ new Guid() }.png"));
             return true;
         }
         public static async Task DownloadAsync(IEnumerable<string> sources,
@@ -164,7 +169,6 @@ namespace ParserCore.Helpers
                                     }
 
                                     pInfo.Percentage = downloadedConut * 100 / linksCount;
-                                    //TODO: Fix pInfo to handle base64 cases
                                     pInfo.ItemsProcessed.Add(source.Split("/").Last());
                                     progress.Report(pInfo);
                                 });
