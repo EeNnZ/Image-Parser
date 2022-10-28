@@ -15,8 +15,9 @@ namespace ParserCore.Helpers
                                                                                    CancellationToken token,
                                                                                    [CallerMemberName]string callerName = "")
         {
-            Log.Information("Thread: {ThreadId} with caller: {Caller} entered to {MethodName}",
-                Environment.CurrentManagedThreadId, callerName, MethodBase.GetCurrentMethod()?.Name);
+            Log.Debug("Thread: {ThreadId} with caller: {Caller} is getting html docs",
+                Environment.CurrentManagedThreadId, callerName);
+            Log.Information("Downloading html pages");
             var htmlPages = await HtmlDownloader.DownloadParallelAsync(urls, progress, token);
             Log.Information("Html pages downloaded, collection contains {itemsCount} elements", htmlPages.Count());
             if (htmlPages == null)
@@ -37,7 +38,7 @@ namespace ParserCore.Helpers
                                                                                 CancellationToken token,
                                                                                 [CallerMemberName]string callerName = "")
         {
-            Log.Information("Thread: {ThreadId} with caller: {Caller} entered to {MethodName}",
+            Log.Debug("Thread: {ThreadId} with caller: {Caller} entered to {MethodName}",
                              Environment.CurrentManagedThreadId,
                              callerName,
                              MethodBase.GetCurrentMethod()?.Name);
@@ -47,12 +48,12 @@ namespace ParserCore.Helpers
             var pInfo = new ProgressChangedEventArgs() { TextStatus = "Preparing documents" };
             int pagesCount = htmlPages.Count();
             progress.Report(pInfo);
-            Log.Information("Parallel parse task is about to run in {ClassName}->{MethodName}",
+            Log.Debug("Parallel parse task is about to run in {ClassName}->{MethodName}",
                       typeof(HtmlDownloader).Name,
                       MethodBase.GetCurrentMethod()?.Name);
             await Task.Run(() =>
                     {
-                        Log.Information("Task: {TaskId} started on thread: {ThreadId}", Task.CurrentId, Environment.CurrentManagedThreadId);
+                        Log.Debug("Task: {TaskId} started on thread: {ThreadId}", Task.CurrentId, Environment.CurrentManagedThreadId);
                         try
                         {
                             Parallel.ForEach(htmlPages, new ParallelOptions
@@ -74,7 +75,7 @@ namespace ParserCore.Helpers
                         }
                         catch { }
                     }, token);
-            Log.Information("Thread: {ThreadId} with caller: {Caller} is about to exit from {MethodName}",
+            Log.Debug("Thread: {ThreadId} with caller: {Caller} is about to exit from {MethodName}",
                              Environment.CurrentManagedThreadId,
                              callerName,
                              MethodBase.GetCurrentMethod()?.Name);
@@ -85,14 +86,14 @@ namespace ParserCore.Helpers
                                                                   CancellationToken token,
                                                                   [CallerMemberName] string callerName = "")
         {
-            Log.Information("Thread: {ThreadId} with caller: {Caller} entered to {MethodName}",
+            Log.Debug("Thread: {ThreadId} with caller: {Caller} entered to GetDocumentAsync",
                 Environment.CurrentManagedThreadId, callerName, MethodBase.GetCurrentMethod()?.Name);
             var html = await HttpHelper.GetStringAsync(url, token);
             if (html == null || string.IsNullOrWhiteSpace(html))
             {
                 throw new NullReferenceException($"{nameof(html)} is null or empty");
             }
-            Log.Information("Html page downloaded");
+            Log.Debug("Html page downloaded: {url}", url);
             return new HtmlParser().ParseDocument(html);
         }
     }

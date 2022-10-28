@@ -16,10 +16,9 @@ namespace ParserCore.Helpers
                                                                             CancellationToken token,
                                                                             [CallerMemberName] string callerName = "")
         {
-            Log.Information("Thread: {ThreadId} with caller: {Caller} entered to {MethodName}",
+            Log.Debug("Thread: {ThreadId} with caller: {Caller} entered to DownloadParallelAsync",
                              Environment.CurrentManagedThreadId,
-                             callerName,
-                             MethodBase.GetCurrentMethod()?.Name);
+                             callerName);
             var pages = new List<string>();
             var links = new ConcurrentBag<string>(urls);
 
@@ -27,13 +26,13 @@ namespace ParserCore.Helpers
             progress.Report(pInfo);
             int urlsCount = urls.Count();
             ParallelLoopResult plr = default;
-            Log.Information("Parallel download task is about to run in {ClassName}->{MethodName}", typeof(HtmlDownloader).Name, MethodBase.GetCurrentMethod()?.Name);
+            Log.Debug("Parallel download task is about to run");
             await Task.Run(() =>
                 {
-                    Log.Information("Task: {TaskId} started on thread: {ThreadId}", Task.CurrentId, Environment.CurrentManagedThreadId);
+                    Log.Debug("Task: {TaskId} started on thread: {ThreadId}", Task.CurrentId, Environment.CurrentManagedThreadId);
                     try
                     {
-                        Log.Information("ParallelForEach started");
+                        Log.Debug("ParallelForEach started");
                         plr = Parallel.ForEach(links,
                             new ParallelOptions()
                             {
@@ -62,15 +61,15 @@ namespace ParserCore.Helpers
                                 }
                             });
                     }
-                    catch(Exception ex) { Log.Information("Exception {Exception} with message {ExMessage} caught in ParallelForEach task", ex, ex.Message); };
+                    catch(Exception ex) { Log.Error("Exception {Exception} with message {ExMessage} caught in ParallelForEach task", ex, ex.Message); };
                 }, token);
             if (!plr.IsCompleted && !token.IsCancellationRequested)
             {
-                Log.Information("ParallelForEach is not completed and cancellation is not requested");
-
+                Log.Debug("ParallelForEach is not completed and cancellation is not requested");
+                Log.Information("Starting sequential downloading");
                 return await Task.Run(() => DownloadSequentially(urls, progress, token), token);
             }
-            Log.Information("Thread: {ThreadId} with caller: {Caller} is about to exit from {MethodName}",
+            Log.Debug("Thread: {ThreadId} with caller: {Caller} is about to exit from {MethodName}",
                 Environment.CurrentManagedThreadId, callerName, MethodBase.GetCurrentMethod()?.Name);
             return pages;
         }
@@ -80,8 +79,9 @@ namespace ParserCore.Helpers
                                                                 CancellationToken token,
                                                                 [CallerMemberName] string callerName = "")
         {
-            Log.Information("Thread: {ThreadId} with caller: {Caller} entered to {MethodName}",
-                Environment.CurrentManagedThreadId, callerName, MethodBase.GetCurrentMethod()?.Name);
+            Log.Debug("Thread: {ThreadId} with caller: {Caller} entered to DownloadParallelAsync",
+                             Environment.CurrentManagedThreadId,
+                             callerName);
             var pages = new List<string>();
             var links = new List<string>(urls);
             int urlsCount = urls.Count();
@@ -125,12 +125,12 @@ namespace ParserCore.Helpers
                     }
                 }
             }
-            catch(Exception ex) { Log.Information("Exception {Exception} with message {ExMessage} caught in foreach task", ex, ex.Message); }
-            Log.Information("Thread: {ThreadId} with caller: {Caller} is about to exit from {MethodName}",
+            catch(Exception ex) { Log.Error("Exception {Exception} with message {ExMessage} caught in foreach task", ex, ex.Message); }
+            Log.Error("Thread: {ThreadId} with caller: {Caller} is about to exit from {MethodName}",
                 Environment.CurrentManagedThreadId, callerName, MethodBase.GetCurrentMethod()?.Name);
             if (pages.Count == 0)
             {
-                Log.Information("Class: {ClassName}, Method: {MethodName} returned empty collection ", typeof(HtmlDownloader).Name, MethodBase.GetCurrentMethod()?.Name);
+                Log.Error("Class: {ClassName}, Method: {MethodName} returned empty collection ", typeof(HtmlDownloader).Name, MethodBase.GetCurrentMethod()?.Name);
             }
             return pages;
         }

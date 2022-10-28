@@ -43,8 +43,8 @@ namespace ParserGui
             _sm = MaterialSkinManager.Instance;
             _sm.AddFormToManage(this);
             _sm.ThemeChanged += SkinManagerThemeChanged;
-            SetTheme();
             Log.Information("Skin manager initialized");
+            SetTheme();
 
             Log.Information("Initializing progresses");
             _mainProgress = new(MainProgressChanged);
@@ -67,18 +67,28 @@ namespace ParserGui
         #region Methods
         private async Task DoWork()
         {
+            Log.Debug("Entered to DoWork");
             if (!await ConnectionChecker.CheckIfConnected())
             {
+                Log.Error("Not connected to internet, canceling");
                 var dr = MessageBox.Show("You're not connected to the internet", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 if (dr == DialogResult.OK) return;
             }
+            Log.Information("Internet check OK");
+            Log.Debug("Getting parse tasks");
             var tasks = GetParseTasks();
+            Log.Debug("Got {tasksCount} tasks", tasks.Count);
             try
             {
+                Log.Information("Starting work");
+                string[] websitesToParse = websitesListBox.Items.Where(item => item.Checked).Select(item => item.Text).ToArray();
+                Log.Information("Parsers will be run: {parsers}", websitesToParse);
                 var results = await Task.WhenAll(tasks);
+                Log.Information("All tasks completed");
                 var sources = results.SelectMany(x => x).ToArray();
                 if (sources == null) throw new NullReferenceException(nameof(sources));
-
+                Log.Information("Got {sourcesCount} sources to download");
+                Log.Information("Starting download");
                 await ImageDownloader.DownloadAsync(sources, _mainProgress, _cts.Token);
                 //await RunTasksAsync(tasks);
             }
@@ -258,6 +268,7 @@ namespace ParserGui
         #region Button clicks
         private async void GoButtonClick(object sender, EventArgs e)
         {
+            Log.Debug("Log button clicked");
             await DoWork();
         }
         private void ExitButtonClick(object sender, EventArgs e)

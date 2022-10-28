@@ -31,11 +31,10 @@ namespace ParserCore.Parsers
                                                              CancellationToken token,
                                                              [CallerMemberName] string callerName = "")
         {
-            Log.Information("Thread: {ThreadId} with caller: {Caller} entered to {ClassName}->{MethodName}",
+            Log.Information("Thread: {ThreadId} with caller: {Caller} entered to task: {TaskId}}",
                              Environment.CurrentManagedThreadId,
                              callerName,
-                             MethodBase.GetCurrentMethod()?.ReflectedType,
-                             MethodBase.GetCurrentMethod()?.Name);
+                             Task.CurrentId);
 
             Log.Information("Getting urls");
             IEnumerable<string> urls = GetUrls();
