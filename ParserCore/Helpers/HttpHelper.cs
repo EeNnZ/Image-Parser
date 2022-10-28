@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Headers;
+﻿using Serilog;
+using System.Net.Http.Headers;
 
 namespace ParserCore.Helpers
 {
@@ -11,6 +12,8 @@ namespace ParserCore.Helpers
         {
             Client = new HttpClient();
             Client.DefaultRequestHeaders.Clear();
+            var userAgentHeader = new KeyValuePair<string, string>("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36 Edg/107.0.1418.13");
+            _ = Client.DefaultRequestHeaders.TryAddWithoutValidation(userAgentHeader.Key, userAgentHeader.Value);
             if (mediaType == null)
                 Client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             else Client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(mediaType));
@@ -18,7 +21,8 @@ namespace ParserCore.Helpers
         public static void InitializeClientWithDefaultHeaders()
         {
             Client = new HttpClient();
-            //Client.DefaultRequestHeaders.AcceptLanguage.Add(new StringWithQualityHeaderValue("ru-RU"));
+            var userAgentHeader = new KeyValuePair<string, string>("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36 Edg/107.0.1418.13");
+            _ = Client.DefaultRequestHeaders.TryAddWithoutValidation(userAgentHeader.Key, userAgentHeader.Value);
         }
         public static async Task<Stream?> GetStreamAsync(string url, CancellationToken token)
         {
@@ -30,14 +34,7 @@ namespace ParserCore.Helpers
         public static async Task<string?> GetStringAsync(string url, CancellationToken token)
         {
             var response = await Client.GetAsync(url, token);
-            for (int i = 0; i < RETRIES_COUNT; i++)
-            {
-                if (response.StatusCode == System.Net.HttpStatusCode.Forbidden)
-                {
-                    Client.DefaultRequestHeaders.Add("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36 Edg/107.0.1418.13");
-                    return await GetStringAsync(url, token);
-                } 
-            }
+            response.EnsureSuccessStatusCode();
             string result = await response.Content.ReadAsStringAsync(token);
             return result;
         }

@@ -5,6 +5,7 @@ namespace ParserCore.Parsers.Wallhaven
 {
     public class WallhavenParser : ImageParser
     {
+        //TODO: Fix wallhaven
         public WallhavenParser(IParserOptions options)
             : base(options) { }
         protected override IEnumerable<string> GetLinksToPagesWithSingleImage(IHtmlDocument doc)

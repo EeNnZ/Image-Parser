@@ -6,6 +6,7 @@ using ParserCore.Parsers;
 using Serilog;
 using System;
 using System.Diagnostics;
+using System.Web;
 using Timer = System.Windows.Forms.Timer;
 
 namespace ParserGui
@@ -16,8 +17,9 @@ namespace ParserGui
         private CancellationTokenSource _cts = new();
         private readonly string _logFilePath = Path.Combine(Environment.CurrentDirectory, "log.txt");
 
-        //TODO: Add new parsers (https://wallpaperaccess.com/, https://wallpaperstock.net/)
+        //TODO: Add new parser (https://wallpaperstock.net/)
         private readonly string[] _websites = new[] { "wallpaperaccess.com", "wallhaven.cc", "wallpaperswide.com", "hdwallpapers.in" };
+        private Dictionary<string, Progress<ProgressChangedEventArgs>> _websiteProgressPairs;
         private readonly MaterialSkinManager _sm;
         private readonly Progress<ProgressChangedEventArgs> _mainProgress,
             _wallhavenProgress,
@@ -55,6 +57,8 @@ namespace ParserGui
             Log.Information("Initializing timer");
             Log.Information("Timer initialized and started");
 
+            _websiteProgressPairs = FillWebsiteProgressPairs();
+
             HttpHelper.InitializeClientWithDefaultHeaders();
 #if DEBUG
             statusTextBox.Text = Environment.CurrentDirectory;
@@ -63,7 +67,7 @@ namespace ParserGui
         #region Methods
         private async Task DoWork()
         {
-            if (await ConnectionChecker.CheckIfConnected())
+            if (!await ConnectionChecker.CheckIfConnected())
             {
                 var dr = MessageBox.Show("You're not connected to the internet", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 if (dr == DialogResult.OK) return;
@@ -86,6 +90,10 @@ namespace ParserGui
 
                 return;
             }
+            catch (Exception e)
+            {
+
+            }
             finally
             {
                 foreach (var task in tasks) task.Dispose();
@@ -99,18 +107,58 @@ namespace ParserGui
             int[] range = { 1, 3 };
             (int sp, int ep) points = (range[0], range[1]);
             string searchQuery = "forest road";
+            var checkedWebsites = websitesListBox.Items.Where(item => item.Checked).Select(item => item.Text).ToArray();
+            var progresses = new List<Progress<ProgressChangedEventArgs>>
+            {
+                _wallhavenProgress, _wallpapersWideProgress, _hdwallprogress, _wallpaperAccessProgress
+            };
+            var list = new List<Task<IEnumerable<string>>>();
+            foreach (var website in checkedWebsites)
+            {
+                var parser = ParserFactory.GetParser(website, points, searchQuery);
+                var progress = _websiteProgressPairs[website];
+                var task = parser.Parse(progress, _cts.Token);
+                list.Add(task);
+            }
+            //List<Task<IEnumerable<string>>> list = new()
+            //{
+            //    ParserFactory.GetParser(_websites[0], points, searchQuery).Parse(_wallhavenProgress, _cts.Token),
+            //    ParserFactory.GetParser(_websites[1], points, searchQuery).Parse(_wallpapersWideProgress, _cts.Token),
+            //    ParserFactory.GetParser(_websites[2], points, searchQuery).Parse(_hdwallprogress, _cts.Token)
+            //    ParserFactory.GetParser(_websites[0], points, searchQuery, 50).Parse(_wallpaperAccessProgress, _cts.Token)
+            //};
+
 #else
             int[] range = rangeTextBox.Text.Replace(" ", "").Split('-').Select(s => int.Parse(s)).ToArray();
             (int sp, int ep) points = (range[0], range[1]);
             string searchQuery = searchTextBox.Text;
 #endif
-            return new List<Task<IEnumerable<string>>>()
+            return list;
+        }
+        private Dictionary<string, Progress<ProgressChangedEventArgs>> FillWebsiteProgressPairs()
+        {
+            Dictionary<string, Progress<ProgressChangedEventArgs>>? result = new();
+            foreach (string website in _websites)
             {
-                //ParserFactory.GetParser(_websites[0], points, searchQuery).Parse(_wallhavenProgress, _cts.Token),
-                //ParserFactory.GetParser(_websites[1], points, searchQuery).Parse(_wallpapersWideProgress, _cts.Token),
-                //ParserFactory.GetParser(_websites[2], points, searchQuery).Parse(_hdwallprogress, _cts.Token)
-                ParserFactory.GetParser(_websites[0], points, searchQuery, 50).Parse(_wallpaperAccessProgress, _cts.Token)
-            };
+                switch (website)
+                {
+                    case "wallpaperaccess.com":
+                        result.Add(website, _wallpaperAccessProgress);
+                        break;
+                    case "wallhaven.cc":
+                        result.Add(website, _wallhavenProgress);
+                        break;
+                    case "wallpaperswide.com":
+                        result.Add(website, _wallpapersWideProgress);
+                        break;
+                    case "hdwallpapers.in":
+                        result.Add(website, _hdwallprogress);
+                        break;
+                    default:
+                        break;
+                }
+            }
+            return result;
         }
         #endregion
 
