@@ -88,8 +88,12 @@ namespace ParserGui
                 var sources = results.SelectMany(x => x).ToArray();
                 if (sources == null) throw new NullReferenceException(nameof(sources));
                 Log.Information("Got {sourcesCount} sources to download");
+                Log.Information("Creating download tasks");
+                var downloadTasks = GetImageDownloadTasks(sources);
+                Log.Information("Download tasks created, got {tasksCount} tasks", downloadTasks.Count);
                 Log.Information("Starting download");
-                await ImageDownloader.DownloadAsync(sources, _mainProgress, _cts.Token);
+                await Task.WhenAll(downloadTasks);
+                //await ImageDownloader.DownloadAsync(sources, _mainProgress, _cts.Token);
                 //await RunTasksAsync(tasks);
             }
             catch (OperationCanceledException ex)
@@ -109,6 +113,16 @@ namespace ParserGui
                 foreach (var task in tasks) task.Dispose();
                 _cts = new();
             }
+        }
+        private List<Task> GetImageDownloadTasks(string[] sources)
+        {
+            var grouping = sources.GroupBy(source => source.Split("/")[2]);
+            var tasks = new List<Task>();
+            foreach (var group in grouping)
+            {
+                tasks.Add(ImageDownloader.DownloadAsync(group.Skip(1), _mainProgress, _cts.Token));
+            }
+            return tasks;
         }
 
         private List<Task<IEnumerable<string>>> GetParseTasks()

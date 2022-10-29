@@ -34,29 +34,21 @@ namespace ParserCore.Helpers
                              MethodBase.GetCurrentMethod()?.Name);
             string[] urlParts = imageUrl.Split("/");
             string imgName = urlParts.Last();
+            if (!Path.HasExtension(imgName))
+            {
+                imgName += ".jpg";
+            }
             string website = urlParts[2];
             string localWorkingDirectory = Path.Combine(WorkingDirectory, website);
 
-            if (!Directory.Exists(localWorkingDirectory))
-            {
-                Log.Information("Сreating directory {dir}", localWorkingDirectory);
-                try
-                {
-                    Directory.CreateDirectory(localWorkingDirectory);
-                }
-                catch(Exception ex)
-                {
-                    Log.Error("Exception caught while creating directory {exception}", ex.Message);
-                }
-            }
+            CheckLocalDir(localWorkingDirectory);
 
             string imgPath = Path.Combine(localWorkingDirectory, imgName);
+
             bool fileLocked = CheckIfFileLockedByAnotherProcess(imgPath, out IEnumerable<Process> lockers);
             if (fileLocked)
             {
-                Log.Information("Cannot download {imgFilePath} because of file is being locked by one or more processes ({firstLockerInCollection})"
-                    , imgPath
-                    , lockers.First());
+                Log.Error("Cannot download {imgFilePath} because of file is being locked by one or more processes ({firstLockerInCollection})", imgPath, lockers.First());
                 return false;
             }
             Log.Information("Downloading image {imageUrl} to {imagePath}", imgName, imgPath);
@@ -74,35 +66,25 @@ namespace ParserCore.Helpers
                 {
                     Log.Error("Exception caught {exception}", ex.Message);
                     continue;
-                    /*if (!lockers.Any()) throw;
-                    foreach (var locker in lockers)
-                    {
-                        Log.Information("Found {lockersCount} lockers");
-                        bool closeMessageSent = locker.CloseMainWindow();
-                        if (closeMessageSent)
-                        {
-                            Log.Information("Close request sent to {lockerProcess}", locker.ProcessName);
-                            bool exited = locker.WaitForExit(30000);
-                            if (exited)
-                            {
-                                Log.Information("{lockerProcess} terminated by user, retrying to save image", locker.ProcessName);
-                                continue;
-                            }
-                            else
-                            {
-                                Log.Information("{lockerProcess} not terminated by user, killing", locker.ProcessName);
-                                locker.Kill();
-                                continue;
-                            }
-                        }
-                        else
-                        {
-                            break;
-                        }
-                    }*/
                 }
             }
             return true;
+        }
+
+        private static void CheckLocalDir(string localWorkingDirectory)
+        {
+            if (!Directory.Exists(localWorkingDirectory))
+            {
+                Log.Information("Сreating directory {dir}", localWorkingDirectory);
+                try
+                {
+                    Directory.CreateDirectory(localWorkingDirectory);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error("Exception caught while creating directory {exception}", ex.Message);
+                }
+            }
         }
 
         private static bool GetImageFromBase64String(string source)
