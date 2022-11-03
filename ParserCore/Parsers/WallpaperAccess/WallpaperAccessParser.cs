@@ -13,7 +13,6 @@ namespace Parsers.WallpaperAccess
 {
     public class WallpaperAccessParser : ImageParser
     {
-        //TODO: Fix - downloads files without extension
         public WallpaperAccessParser(IParserOptions options) : base(options) { }
         public override async Task<IEnumerable<string>> Parse(IProgress<ProgressChangedEventArgs> progress, CancellationToken token, [CallerMemberName] string callerName = "")
         {
