@@ -16,6 +16,7 @@ namespace ParserGui
         #region Fields
         private CancellationTokenSource _cts = new();
         private readonly string _logFilePath = Path.Combine(Environment.CurrentDirectory, "log.txt");
+        private string _resultsFolder;
 
         //TODO: Add new parser (https://wallpaperstock.net/)
         private readonly string[] _websites = new[] { "wallpaperaccess.com", "wallhaven.cc", "wallpaperswide.com", "hdwallpapers.in" };
@@ -128,9 +129,9 @@ namespace ParserGui
         private List<Task<IEnumerable<string>>> GetParseTasks()
         {
 #if DEBUG
-            int[] range = { 1, 3 };
+            int[] range = { 1, 7 };
             (int sp, int ep) points = (range[0], range[1]);
-            string searchQuery = "forest road";
+            string searchQuery = "forest";
             var checkedWebsites = websitesListBox.Items.Where(item => item.Checked).Select(item => item.Text).ToArray();
             var progresses = new List<Progress<ProgressChangedEventArgs>>
             {
@@ -288,6 +289,21 @@ namespace ParserGui
         private void ExitButtonClick(object sender, EventArgs e)
         {
             Application.Exit();
+        }
+
+        private void OpenResFolderButtonClick(object sender, EventArgs e)
+        {
+            if (!Directory.Exists(ImageDownloader.WorkingDirectory))
+            {
+                MessageBox.Show("Folder is not created yet, download images first", "Error", MessageBoxButtons.OK);
+                return;
+            }
+            Process.Start(new ProcessStartInfo()
+            {
+                FileName = ImageDownloader.WorkingDirectory,
+                UseShellExecute = true,
+                Verb = "open"
+            });
         }
 
         private void OpenLogFileButtonClick(object sender, EventArgs e)

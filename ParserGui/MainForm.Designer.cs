@@ -53,6 +53,7 @@
             this.openLogFileButton = new MaterialSkin.Controls.MaterialButton();
             this.label8 = new MaterialSkin.Controls.MaterialLabel();
             this.materialMaskedTextBox1 = new MaterialSkin.Controls.MaterialMaskedTextBox();
+            this.openResFolderButton = new MaterialSkin.Controls.MaterialButton();
             this.websitesListBox.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -74,7 +75,7 @@
             this.websitesListBox.Location = new System.Drawing.Point(370, 101);
             this.websitesListBox.MouseState = MaterialSkin.MouseState.HOVER;
             this.websitesListBox.Name = "websitesListBox";
-            this.websitesListBox.Size = new System.Drawing.Size(403, 205);
+            this.websitesListBox.Size = new System.Drawing.Size(434, 219);
             this.websitesListBox.Striped = false;
             this.websitesListBox.StripeDarkColor = System.Drawing.Color.Empty;
             this.websitesListBox.TabIndex = 29;
@@ -84,7 +85,7 @@
             this.label7.AutoSize = true;
             this.label7.Depth = 0;
             this.label7.Font = new System.Drawing.Font("Roboto", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
-            this.label7.Location = new System.Drawing.Point(355, 104);
+            this.label7.Location = new System.Drawing.Point(361, 120);
             this.label7.MouseState = MaterialSkin.MouseState.HOVER;
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(22, 19);
@@ -94,10 +95,11 @@
             // progressBar4
             // 
             this.progressBar4.Depth = 0;
-            this.progressBar4.Location = new System.Drawing.Point(204, 110);
+            this.progressBar4.Location = new System.Drawing.Point(210, 126);
             this.progressBar4.MouseState = MaterialSkin.MouseState.HOVER;
             this.progressBar4.Name = "progressBar4";
             this.progressBar4.Size = new System.Drawing.Size(144, 5);
+            this.progressBar4.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
             this.progressBar4.TabIndex = 44;
             // 
             // label6
@@ -105,7 +107,7 @@
             this.label6.AutoSize = true;
             this.label6.Depth = 0;
             this.label6.Font = new System.Drawing.Font("Roboto", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
-            this.label6.Location = new System.Drawing.Point(355, 71);
+            this.label6.Location = new System.Drawing.Point(361, 83);
             this.label6.MouseState = MaterialSkin.MouseState.HOVER;
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(22, 19);
@@ -115,19 +117,20 @@
             // progressBar3
             // 
             this.progressBar3.Depth = 0;
-            this.progressBar3.Location = new System.Drawing.Point(204, 76);
+            this.progressBar3.Location = new System.Drawing.Point(210, 88);
             this.progressBar3.MouseState = MaterialSkin.MouseState.HOVER;
             this.progressBar3.Name = "progressBar3";
             this.progressBar3.Size = new System.Drawing.Size(144, 5);
+            this.progressBar3.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
             this.progressBar3.TabIndex = 42;
             // 
             // progressBar
             // 
             this.progressBar.Depth = 0;
-            this.progressBar.Location = new System.Drawing.Point(3, 190);
+            this.progressBar.Location = new System.Drawing.Point(3, 185);
             this.progressBar.MouseState = MaterialSkin.MouseState.HOVER;
             this.progressBar.Name = "progressBar";
-            this.progressBar.Size = new System.Drawing.Size(398, 5);
+            this.progressBar.Size = new System.Drawing.Size(428, 5);
             this.progressBar.TabIndex = 41;
             // 
             // progressLabel
@@ -146,7 +149,7 @@
             this.label5.AutoSize = true;
             this.label5.Depth = 0;
             this.label5.Font = new System.Drawing.Font("Roboto", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
-            this.label5.Location = new System.Drawing.Point(355, 38);
+            this.label5.Location = new System.Drawing.Point(361, 45);
             this.label5.MouseState = MaterialSkin.MouseState.HOVER;
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(22, 19);
@@ -156,10 +159,11 @@
             // progressBar2
             // 
             this.progressBar2.Depth = 0;
-            this.progressBar2.Location = new System.Drawing.Point(204, 44);
+            this.progressBar2.Location = new System.Drawing.Point(210, 52);
             this.progressBar2.MouseState = MaterialSkin.MouseState.HOVER;
             this.progressBar2.Name = "progressBar2";
             this.progressBar2.Size = new System.Drawing.Size(144, 5);
+            this.progressBar2.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
             this.progressBar2.TabIndex = 37;
             // 
             // label4
@@ -167,7 +171,7 @@
             this.label4.AutoSize = true;
             this.label4.Depth = 0;
             this.label4.Font = new System.Drawing.Font("Roboto", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
-            this.label4.Location = new System.Drawing.Point(355, 3);
+            this.label4.Location = new System.Drawing.Point(361, 8);
             this.label4.MouseState = MaterialSkin.MouseState.HOVER;
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(22, 19);
@@ -177,10 +181,11 @@
             // progressBar1
             // 
             this.progressBar1.Depth = 0;
-            this.progressBar1.Location = new System.Drawing.Point(204, 9);
+            this.progressBar1.Location = new System.Drawing.Point(210, 14);
             this.progressBar1.MouseState = MaterialSkin.MouseState.HOVER;
             this.progressBar1.Name = "progressBar1";
             this.progressBar1.Size = new System.Drawing.Size(144, 5);
+            this.progressBar1.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
             this.progressBar1.TabIndex = 36;
             // 
             // statusTextBox
@@ -194,7 +199,7 @@
             this.statusTextBox.MouseState = MaterialSkin.MouseState.HOVER;
             this.statusTextBox.Name = "statusTextBox";
             this.statusTextBox.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
-            this.statusTextBox.Size = new System.Drawing.Size(403, 90);
+            this.statusTextBox.Size = new System.Drawing.Size(434, 90);
             this.statusTextBox.TabIndex = 31;
             this.statusTextBox.Text = "";
             this.statusTextBox.TextChanged += new System.EventHandler(this.StatusTextBoxTextChanged);
@@ -357,7 +362,7 @@
             this.exitButton.Depth = 0;
             this.exitButton.HighEmphasis = true;
             this.exitButton.Icon = null;
-            this.exitButton.Location = new System.Drawing.Point(709, 424);
+            this.exitButton.Location = new System.Drawing.Point(740, 426);
             this.exitButton.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.exitButton.MouseState = MaterialSkin.MouseState.HOVER;
             this.exitButton.Name = "exitButton";
@@ -377,7 +382,7 @@
             this.openLogFileButton.Depth = 0;
             this.openLogFileButton.HighEmphasis = true;
             this.openLogFileButton.Icon = null;
-            this.openLogFileButton.Location = new System.Drawing.Point(574, 424);
+            this.openLogFileButton.Location = new System.Drawing.Point(608, 426);
             this.openLogFileButton.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.openLogFileButton.MouseState = MaterialSkin.MouseState.HOVER;
             this.openLogFileButton.Name = "openLogFileButton";
@@ -443,11 +448,32 @@
             this.materialMaskedTextBox1.UseSystemPasswordChar = false;
             this.materialMaskedTextBox1.ValidatingType = null;
             // 
+            // openResFolderButton
+            // 
+            this.openResFolderButton.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.openResFolderButton.Density = MaterialSkin.Controls.MaterialButton.MaterialButtonDensity.Default;
+            this.openResFolderButton.Depth = 0;
+            this.openResFolderButton.HighEmphasis = true;
+            this.openResFolderButton.Icon = null;
+            this.openResFolderButton.Location = new System.Drawing.Point(475, 426);
+            this.openResFolderButton.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
+            this.openResFolderButton.MouseState = MaterialSkin.MouseState.HOVER;
+            this.openResFolderButton.Name = "openResFolderButton";
+            this.openResFolderButton.NoAccentTextColor = System.Drawing.Color.Empty;
+            this.openResFolderButton.Size = new System.Drawing.Size(125, 36);
+            this.openResFolderButton.TabIndex = 45;
+            this.openResFolderButton.Text = "Open Results";
+            this.openResFolderButton.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
+            this.openResFolderButton.UseAccentColor = false;
+            this.openResFolderButton.UseVisualStyleBackColor = true;
+            this.openResFolderButton.Click += new System.EventHandler(this.OpenResFolderButtonClick);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(850, 500);
+            this.Controls.Add(this.openResFolderButton);
             this.Controls.Add(this.label8);
             this.Controls.Add(this.materialMaskedTextBox1);
             this.Controls.Add(this.openLogFileButton);
@@ -502,5 +528,6 @@
         private MaterialSkin.Controls.MaterialProgressBar progressBar4;
         private MaterialSkin.Controls.MaterialLabel label8;
         private MaterialSkin.Controls.MaterialMaskedTextBox materialMaskedTextBox1;
+        private MaterialSkin.Controls.MaterialButton openResFolderButton;
     }
 }

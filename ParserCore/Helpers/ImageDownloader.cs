@@ -22,8 +22,8 @@ namespace ParserCore.Helpers
             {
                 string desktop = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
                 string resultsFolderName = $"imgParser{DateTime.Now.ToShortDateString()}";
-                var dir = Directory.CreateDirectory(Path.Combine(desktop, resultsFolderName));
-                return dir.FullName;
+                string path = Path.Combine(desktop, resultsFolderName);
+                return path;
             }
         }
         private static bool DownloadImageAsync(string imageUrl, CancellationToken token, [CallerMemberName]string callerName = "")
@@ -176,6 +176,12 @@ namespace ParserCore.Helpers
         {
             Log.Information("Thread: {ThreadId} with caller: {Caller} entered to {MethodName}",
                 Environment.CurrentManagedThreadId, callerName, MethodBase.GetCurrentMethod()?.Name);
+
+            if (!Directory.Exists(WorkingDirectory))
+            {
+                Directory.CreateDirectory(WorkingDirectory);
+            }
+
             int downloadedCount = 0;
             var pInfo = new ProgressChangedEventArgs() { TextStatus = "Download restarted sequentially" };
             //_ = ClearWorkingDirectory();
