@@ -6,7 +6,6 @@
         ///  Required designer variable.
         /// </summary>
         private System.ComponentModel.IContainer components = null;
-
         /// <summary>
         ///  Clean up any resources being used.
         /// </summary>
@@ -19,9 +18,7 @@
             }
             base.Dispose(disposing);
         }
-
         #region Windows Form Designer generated code
-
         /// <summary>
         ///  Required method for Designer support - do not modify
         ///  the contents of this method with the code editor.
@@ -353,7 +350,6 @@
             this.themeSwitcher.TabIndex = 39;
             this.themeSwitcher.Text = "Dark Theme";
             this.themeSwitcher.UseVisualStyleBackColor = true;
-            this.themeSwitcher.CheckStateChanged += new System.EventHandler(this.ThemeSwitcherStateChanged);
             // 
             // exitButton
             // 
@@ -393,7 +389,6 @@
             this.openLogFileButton.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
             this.openLogFileButton.UseAccentColor = false;
             this.openLogFileButton.UseVisualStyleBackColor = true;
-            this.openLogFileButton.Click += new System.EventHandler(this.OpenLogFileButtonClick);
             // 
             // label8
             // 
@@ -500,9 +495,7 @@
             this.websitesListBox.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
-
         }
-
         #endregion
         private MaterialSkin.Controls.MaterialCheckedListBox websitesListBox;
         private MaterialSkin.Controls.MaterialMultiLineTextBox statusTextBox;

@@ -1,24 +1,20 @@
 ﻿using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
-
-namespace ParserGui
+namespace ParserGui;
+[SupportedOSPlatform("windows")]
+public static class WinThemeDetector
 {
-    [SupportedOSPlatform("windows")]
-    public static class WinThemeDetector
+    [DllImport("UXTheme.dll", SetLastError = true, EntryPoint = "#138")]
+    private static extern bool ShouldSystemUseDarkMode();
+    public static bool ShouldUseDarkMode()
     {
-        [DllImport("UXTheme.dll", SetLastError = true, EntryPoint = "#138")]
-        private static extern bool ShouldSystemUseDarkMode();
-        public static bool ShouldUseDarkMode()
+        try
         {
-            try
-            {
-                return ShouldSystemUseDarkMode();
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+            return ShouldSystemUseDarkMode();
         }
-
+        catch (Exception)
+        {
+            throw;
+        }
     }
 }
