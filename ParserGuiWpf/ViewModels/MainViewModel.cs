@@ -1,9 +1,12 @@
 ﻿using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using ParserCore.Downloaders;
 using ParserCore.Helpers;
 using ParserCore.Models.Websites.ConcreteWebsites;
+using ParserCore.Tools;
 using ParserGuiWpf.Helpers;
 
 
@@ -11,7 +14,7 @@ namespace ParserGuiWpf.ViewModels
 {
     public partial class MainViewModel : ObservableObject
     {
-        private readonly CancellationTokenSource _cts                 = new CancellationTokenSource();
+        private CancellationTokenSource Cts => new();
 
         [ObservableProperty] private string _logText         = string.Empty;
         [ObservableProperty] private string _searchTermValue = string.Empty;
@@ -26,11 +29,22 @@ namespace ParserGuiWpf.ViewModels
         [ObservableProperty] private SelectableWebsiteViewModel<WallpaperAccess> _wallpaperAccesViewModel = new();
 
         private readonly ObservableCollection<ISelectableWebsite> _selectableWebsites;
-        private IEnumerable<ISelectableWebsite>          SelectedWebsites => _selectableWebsites.Where(x => x.IsSelected);
+        private IEnumerable<ISelectableWebsite> SelectedWebsites => _selectableWebsites.Where(x => x.IsSelected);
 
         public MainViewModel()
         {
             HttpHelper.InitializeClientWithDefaultHeaders();
+            WrappedCall.SetHandler(async void (mes) =>
+            {
+                try
+                {
+                    await new CustomMessageBox(mes).ShowDialogAsync(Cts.Token);
+                }
+                catch (Exception e)
+                {
+                    Application.Current.Shutdown();
+                }
+            });
 
             _selectableWebsites = new ObservableCollection<ISelectableWebsite>
             {
@@ -41,7 +55,7 @@ namespace ParserGuiWpf.ViewModels
 
         private void SubscribeToSelectedProgressChanged()
         {
-            foreach (var website in SelectedWebsites) 
+            foreach (ISelectableWebsite website in SelectedWebsites)
                 website.ProgressValueChanged += UpdateCommonProgress;
         }
 
@@ -60,46 +74,49 @@ namespace ParserGuiWpf.ViewModels
 
             try
             {
-                await DownloadImagesFromSelectedWebsites();
+                var token = Cts.Token;
+                await DownloadImagesFromSelectedWebsites(token);
             }
             catch (OperationCanceledException)
             {
-                await new CustomMessageBox().ShowCanceledDialog(_cts.Token);
+                await new CustomMessageBox().ShowCanceledDialog(Cts.Token);
             }
             catch (Exception ex)
             {
-                await new CustomMessageBox($"{ex.Message}{Environment.NewLine}StackTrace:{ex.StackTrace}", "Uncaught exception")
-                   .ShowDialogAsync(_cts.Token);
+                await new CustomMessageBox($"{ex.Message}{Environment.NewLine}StackTrace:{ex.StackTrace}",
+                                           "Exception occured")
+                   .ShowDialogAsync(Cts.Token);
                 Exit();
             }
         }
 
-        private async Task DownloadImagesFromSelectedWebsites()
+        private async Task DownloadImagesFromSelectedWebsites(CancellationToken token)
         {
-            var tasks = GetSelectedWebsitesTasks();
+            var tasks = GetSelectedWebsitesTasks(token);
             await Task.WhenAll(tasks);
         }
 
-        private IEnumerable<Task> GetSelectedWebsitesTasks()
+        private IEnumerable<Task> GetSelectedWebsitesTasks(CancellationToken token)
         {
             var tasks = SelectedWebsites
-                       .Select(website => Task.Run(() => DownloadImages(website), _cts.Token))
+                       .Select(website => Task.Run(() => DownloadImages(website, token), token))
                        .ToList();
             return tasks;
         }
 
-        private Task DownloadImages(ISelectableWebsite website)
+        private Task DownloadImages(ISelectableWebsite website, CancellationToken token)
         {
-            return website.DownloadImages(_startPointValue, _endPointValue, _searchTermValue,
-                                          _cts.Token);
+            return website.DownloadImages(StartPointValue, EndPointValue, SearchTermValue,
+                                          token);
         }
 
         [RelayCommand]
-        private void Cancel() => _cts.Cancel();
+        private void Cancel() => Cts.Cancel();
 
         [RelayCommand]
         private void OpenResults()
         {
+            WrappedCall.Action(() => Process.Start("explorer.exe", ImageDownloader.WorkingDirectory));
         }
 
         [RelayCommand]

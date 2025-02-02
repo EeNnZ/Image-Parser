@@ -26,7 +26,6 @@ public class CustomMessageBox
             ShowTitle             = true,
             CloseButtonText       = "Exit",
             CloseButtonAppearance = ControlAppearance.Danger,
-            SizeToContent = SizeToContent.Width,
             ResizeMode = ResizeMode.CanResize
         };
 

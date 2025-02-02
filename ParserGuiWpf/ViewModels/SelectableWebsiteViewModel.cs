@@ -40,6 +40,7 @@ public partial class SelectableWebsiteViewModel<TWebsite> : ObservableObject, IS
 
     public async Task DownloadImages(int start, int end, string query, CancellationToken token)
     {
+        _website.Parser.Options.SearchQuery = query;
         _website.Parser.Options.StartPoint = start;
         _website.Parser.Options.EndPoint = end;
         await ImageDownloader.DownloadImagesFromWebsiteAsync(_website, Progress, token);

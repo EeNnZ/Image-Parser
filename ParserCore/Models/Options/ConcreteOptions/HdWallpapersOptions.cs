@@ -2,7 +2,7 @@
 internal class HdWallpapersOptions : IParserOptions
 {
     public string BaseUrl => "https://www.hdwallpapers.in/";
-    public string PagePrefix => $"{SearchPrefix}page/";
+    public string PagePrefix => $"page/";
     public string SearchPrefix => "search/";
     public int StartPoint { get; set; }
     public int EndPoint { get; set; }

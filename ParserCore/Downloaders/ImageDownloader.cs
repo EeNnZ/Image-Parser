@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Drawing;
+using System.Runtime.Serialization;
 using System.Runtime.Versioning;
 using ParserCore.Helpers;
 using ParserCore.Models.Parsers;
@@ -18,15 +19,19 @@ public static class ImageDownloader
         get
         {
             string desktop           = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
-            var    resultsFolderName = $"imgParser{DateTime.Now.ToShortDateString()}_{DateTime.Now.ToShortTimeString()}";
+            var    resultsFolderName = $"imgParser{DateTime.Now.ToShortDateString()}_{CurrentWebsiteName}";
             string path              = Path.Combine(desktop, resultsFolderName);
             return path;
         }
     }
+
+    public static string CurrentWebsiteName { get; private set; } = "default_name";
     public static async Task DownloadImagesFromWebsiteAsync(IWebsite                    website,
                                                      IProgress<ProgressChangedEventArgs> progress,
                                                      CancellationToken                   token)
     {
+        CurrentWebsiteName = website.Name;
+
         var directLinks = await new ParserExecutor(website.Parser).RetrieveDirectLinksToImages(token, progress);
         await DownloadImagesAsync(directLinks, progress, token);
     }
